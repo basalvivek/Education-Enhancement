@@ -1,0 +1,31 @@
+# Maven
+backend/target/
+backend/*.iml
+backend/.mvn/
+
+# IntelliJ / VS Code
+.idea/
+*.iml
+.vscode/
+
+# Spring Boot
+backend/src/main/resources/application-local.yml
+
+# Python
+analytics/__pycache__/
+analytics/src/__pycache__/
+analytics/.venv/
+analytics/venv/
+*.pyc
+*.pyo
+
+# Environment
+.env
+analytics/.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
