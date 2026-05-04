@@ -19,10 +19,16 @@ public class DataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         userRepository.findByEmail("admin@education.com").ifPresent(admin -> {
-            String correctHash = passwordEncoder.encode("Admin@123");
-            admin.setPassword(correctHash);
+            admin.setPassword(passwordEncoder.encode("Admin@123"));
             userRepository.save(admin);
-            log.info("Admin password initialised");
+            log.info("admin@education.com password initialised");
+        });
+
+        userRepository.findByEmail("basalvivek@gmail.com").ifPresent(user -> {
+            user.setRole(com.education.portal.model.User.Role.ADMIN);
+            user.setPassword(passwordEncoder.encode("basal123$"));
+            userRepository.save(user);
+            log.info("basalvivek@gmail.com promoted to ADMIN with updated password");
         });
     }
 }
