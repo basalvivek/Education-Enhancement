@@ -1,14 +1,21 @@
+networks:
+  education-net:
+    driver: bridge
+
 services:
 
   postgres:
     image: postgres:15-alpine
     container_name: education-db
+    hostname: postgres
+    networks:
+      - education-net
     environment:
       POSTGRES_DB: education_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: basal
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,6 +27,8 @@ services:
   backend:
     build: ./backend
     container_name: education-backend
+    networks:
+      - education-net
     ports:
       - "8080:8080"
     environment:
@@ -34,6 +43,8 @@ services:
   analytics:
     build: ./analytics
     container_name: education-analytics
+    networks:
+      - education-net
     ports:
       - "8081:8081"
     environment:
