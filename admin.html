@@ -356,7 +356,7 @@
           <input id="con-title" placeholder="e.g. Introduction to Algebra">
         </div>
         <div class="field"><label>Content Type *</label>
-          <select id="con-type">
+          <select id="con-type" onchange="onContentTypeChange()">
             <option value="">— select type —</option>
             <option value="THEORY">Theory</option>
             <option value="PRACTICE_TEST">Practice Test</option>
@@ -365,11 +365,43 @@
           </select>
         </div>
       </div>
-      <div class="form-row">
-        <div class="field" style="flex:1">
-          <label>Body / Description (optional)</label>
-          <textarea id="con-body" placeholder="Notes or description for this content…"></textarea>
+
+      <!-- Theory paragraph editor -->
+      <div id="theory-body-wrap" style="display:none; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted);">
+            Theory Content *
+          </label>
+          <span id="theory-char-count" style="font-size:12px; color:var(--muted);">0 / 2000</span>
         </div>
+        <textarea id="con-body"
+          placeholder="Write the theory content here — explain concepts, definitions, examples… (up to 2000 characters)"
+          maxlength="2000"
+          oninput="updateCharCount()"
+          style="width:100%; min-height:220px; padding:12px 14px; border:1.5px solid var(--border);
+                 border-radius:8px; font-size:14px; color:var(--text); outline:none;
+                 font-family:inherit; resize:vertical; line-height:1.6; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--purple)'"
+          onblur="this.style.borderColor='var(--border)'"
+        ></textarea>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">
+          Supports plain text. Maximum 2000 characters.
+        </div>
+      </div>
+
+      <!-- Non-theory optional note -->
+      <div id="other-body-wrap" style="display:none; margin-bottom:14px;">
+        <label style="display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px;">
+          Notes (optional)
+        </label>
+        <textarea id="con-body-other"
+          placeholder="Optional notes for this content item…"
+          style="width:100%; min-height:70px; padding:10px 12px; border:1.5px solid var(--border);
+                 border-radius:8px; font-size:14px; color:var(--text); outline:none;
+                 font-family:inherit; resize:vertical; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--purple)'"
+          onblur="this.style.borderColor='var(--border)'"
+        ></textarea>
       </div>
       <button class="btn btn-primary" id="con-btn" onclick="createContent()">Add Content</button>
     </div>
@@ -732,22 +764,48 @@ async function loadContent() {
   }
 }
 
+function onContentTypeChange() {
+  const type = document.getElementById('con-type').value;
+  document.getElementById('theory-body-wrap').style.display = type === 'THEORY' ? 'block' : 'none';
+  document.getElementById('other-body-wrap').style.display  = (type && type !== 'THEORY') ? 'block' : 'none';
+  if (type !== 'THEORY') {
+    document.getElementById('con-body').value = '';
+    document.getElementById('theory-char-count').textContent = '0 / 2000';
+  }
+}
+
+function updateCharCount() {
+  const len = document.getElementById('con-body').value.length;
+  const el  = document.getElementById('theory-char-count');
+  el.textContent = len + ' / 2000';
+  el.style.color = len > 1800 ? '#e53e3e' : len > 1500 ? '#dd6b20' : 'var(--muted)';
+}
+
 async function createContent() {
   const topId = document.getElementById('con-top-sel').value;
   const title = document.getElementById('con-title').value.trim();
   const type  = document.getElementById('con-type').value;
-  const body  = document.getElementById('con-body').value.trim();
+  const body  = type === 'THEORY'
+    ? document.getElementById('con-body').value.trim()
+    : document.getElementById('con-body-other').value.trim();
+
   if (!document.getElementById('con-cat-sel').value) { showAlert('con-alert', 'Please select a category.', 'err'); return; }
   if (!document.getElementById('con-cls-sel').value) { showAlert('con-alert', 'Please select a class.', 'err'); return; }
   if (!topId) { showAlert('con-alert', 'Please select a topic.', 'err'); return; }
   if (!title) { showAlert('con-alert', 'Title is required.', 'err'); return; }
   if (!type)  { showAlert('con-alert', 'Please select a content type.', 'err'); return; }
+  if (type === 'THEORY' && !body) { showAlert('con-alert', 'Theory content cannot be empty.', 'err'); return; }
+
   const btn = setBusy('con-btn', 'Adding…');
   try {
     await api('POST', '/api/admin/content', { title, contentType: type, body: body || null, topicId: Number(topId) });
-    document.getElementById('con-title').value = '';
-    document.getElementById('con-body').value  = '';
-    document.getElementById('con-type').value  = '';
+    document.getElementById('con-title').value      = '';
+    document.getElementById('con-body').value       = '';
+    document.getElementById('con-body-other').value = '';
+    document.getElementById('con-type').value       = '';
+    document.getElementById('theory-char-count').textContent = '0 / 2000';
+    document.getElementById('theory-body-wrap').style.display = 'none';
+    document.getElementById('other-body-wrap').style.display  = 'none';
     showAlert('con-alert', `Content "${title}" added.`, 'ok');
     loadContent();
   } catch(e) { showAlert('con-alert', e.message, 'err'); }
