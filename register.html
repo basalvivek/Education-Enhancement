@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Education Portal — Register</title>
+  <title>Education Portal — Login / Register</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,42 +12,86 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f0f4f8;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 20px;
     }
 
     .card {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-      padding: 40px 36px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
+      overflow: hidden;
     }
 
-    .logo {
-      text-align: center;
-      margin-bottom: 28px;
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e2e8f0;
     }
-    .logo h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1a202c;
+    .tab-btn {
+      flex: 1;
+      padding: 16px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #a0aec0;
+      cursor: pointer;
+      transition: color 0.2s, border-bottom 0.2s;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
     }
-    .logo p {
-      font-size: 13px;
-      color: #718096;
-      margin-top: 4px;
-    }
+    .tab-btn.active { color: #5a67d8; border-bottom-color: #5a67d8; }
 
-    label {
-      display: block;
+    .tab-content { display: none; padding: 32px 36px 36px; }
+    .tab-content.active { display: block; }
+
+    /* ── Role toggle ── */
+    .role-toggle {
+      display: flex;
+      background: #edf2f7;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .role-btn {
+      flex: 1;
+      padding: 9px 8px;
+      border: none;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: #718096;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .role-btn.active {
+      background: #fff;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+    }
+    .role-btn.admin.active  { color: #5a67d8; }
+    .role-btn.student.active { color: #38a169; }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
       color: #4a5568;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin-bottom: 6px;
     }
-
     input {
       width: 100%;
       padding: 10px 14px;
@@ -57,61 +101,61 @@
       color: #1a202c;
       outline: none;
       transition: border-color 0.2s;
+      background: #fff;
     }
-    input:focus { border-color: #4299e1; }
-    input.error { border-color: #e53e3e; }
+    input:focus { border-color: #5a67d8; }
+    input.error  { border-color: #e53e3e; }
+    input[readonly] { background: #f7fafc; color: #718096; cursor: not-allowed; }
 
-    .field { margin-bottom: 18px; }
+    .hint { font-size: 11px; color: #a0aec0; margin-top: 4px; }
 
-    .hint {
-      font-size: 11px;
-      color: #a0aec0;
-      margin-top: 4px;
-    }
-
-    button {
+    /* ── Buttons ── */
+    .submit-btn {
       width: 100%;
       padding: 12px;
-      background: #4299e1;
-      color: #fff;
       border: none;
       border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: opacity 0.2s, transform 0.1s;
+      color: #fff;
       margin-top: 4px;
     }
-    button:hover:not(:disabled) { background: #3182ce; }
-    button:disabled { background: #a0aec0; cursor: not-allowed; }
+    .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .submit-btn.admin-btn   { background: linear-gradient(135deg, #5a67d8, #764ba2); }
+    .submit-btn.student-btn { background: linear-gradient(135deg, #38a169, #2f855a); }
+    .submit-btn.register-btn { background: linear-gradient(135deg, #ed8936, #dd6b20); }
 
+    /* ── Alert ── */
     .alert {
       display: none;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border-radius: 8px;
       font-size: 13px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       line-height: 1.5;
     }
-    .alert.success {
-      background: #f0fff4;
-      border: 1.5px solid #68d391;
-      color: #276749;
-    }
-    .alert.failure {
-      background: #fff5f5;
-      border: 1.5px solid #fc8181;
-      color: #c53030;
-    }
+    .alert.success { background: #f0fff4; border: 1.5px solid #68d391; color: #276749; }
+    .alert.failure { background: #fff5f5; border: 1.5px solid #fc8181; color: #c53030; }
 
-    .success-box {
-      display: none;
-      text-align: center;
-      padding: 20px 0 4px;
+    /* ── Success box ── */
+    .success-box { display: none; text-align: center; padding: 10px 0 4px; }
+    .success-box .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
     }
-    .success-box .check { font-size: 48px; }
-    .success-box h2 { font-size: 18px; font-weight: 700; color: #276749; margin-top: 10px; }
-    .success-box p  { font-size: 13px; color: #4a5568; margin-top: 6px; line-height: 1.6; }
+    .badge.admin   { background: #ebf4ff; color: #2b6cb0; }
+    .badge.student { background: #f0fff4; color: #276749; }
+    .success-box h2 { font-size: 20px; font-weight: 700; color: #1a202c; }
+    .success-box .sub { font-size: 13px; color: #718096; margin-top: 6px; }
     .token-box {
       background: #edf2f7;
       border-radius: 8px;
@@ -123,162 +167,333 @@
       margin-top: 14px;
       text-align: left;
     }
-    .token-box strong { display: block; margin-bottom: 4px; color: #2d3748; }
+    .token-box strong { display: block; color: #2d3748; margin-bottom: 4px; font-size: 11px; }
+    .back-btn {
+      margin-top: 16px;
+      padding: 8px 20px;
+      background: none;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #718096;
+      cursor: pointer;
+    }
+    .back-btn:hover { border-color: #a0aec0; color: #4a5568; }
 
+    /* ── Spinner ── */
     .spinner {
       display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid #fff;
-      border-top-color: transparent;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top-color: #fff;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
       vertical-align: middle;
       margin-right: 6px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 20px;
+    }
+    .divider { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
   </style>
 </head>
 <body>
-
 <div class="card">
-  <div class="logo">
-    <h1>Education Portal</h1>
-    <p>Create your student account</p>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+    <button class="tab-btn"        onclick="switchTab('register')">Register</button>
   </div>
 
-  <!-- Alert banner -->
-  <div id="alert" class="alert"></div>
+  <!-- ══════════ LOGIN TAB ══════════ -->
+  <div id="tab-login" class="tab-content active">
 
-  <!-- Registration form -->
-  <form id="registerForm" novalidate>
-
-    <div class="field">
-      <label for="name">Full Name</label>
-      <input type="text" id="name" placeholder="e.g. John Smith" autocomplete="name">
-      <div class="hint">Minimum 2 characters</div>
+    <!-- Role toggle -->
+    <div class="role-toggle">
+      <button class="role-btn admin active" id="roleAdmin" onclick="selectRole('admin')">
+        👑 Super User
+      </button>
+      <button class="role-btn student" id="roleStudent" onclick="selectRole('student')">
+        🎓 Student
+      </button>
     </div>
 
-    <div class="field">
-      <label for="email">Email Address</label>
-      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
-    </div>
+    <div id="loginAlert" class="alert"></div>
 
-    <div class="field">
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password">
-      <div class="hint">Minimum 6 characters</div>
-    </div>
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="loginEmail">Email Address</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+      <button type="submit" id="loginBtn" class="submit-btn admin-btn">Login as Super User</button>
+    </form>
 
-    <div class="field">
-      <label for="confirm">Confirm Password</label>
-      <input type="password" id="confirm" placeholder="Re-enter your password" autocomplete="new-password">
-    </div>
-
-    <button type="submit" id="submitBtn">Create Account</button>
-  </form>
-
-  <!-- Success view (shown after registration) -->
-  <div class="success-box" id="successBox">
-    <div class="check">&#10003;</div>
-    <h2>Registration Successful!</h2>
-    <p id="successMsg"></p>
-    <div class="token-box" id="tokenBox">
-      <strong>JWT Token (saved to localStorage)</strong>
-      <span id="tokenDisplay"></span>
+    <div class="success-box" id="loginSuccess">
+      <div id="loginBadge" class="badge admin">👑 Super User</div>
+      <h2 id="loginWelcome"></h2>
+      <div class="sub" id="loginSub"></div>
+      <div class="token-box">
+        <strong>JWT Token (saved to localStorage)</strong>
+        <span id="loginToken"></span>
+      </div>
+      <button class="back-btn" onclick="resetLogin()">Back to Login</button>
     </div>
   </div>
-</div>
+
+  <!-- ══════════ REGISTER TAB ══════════ -->
+  <div id="tab-register" class="tab-content">
+
+    <div id="registerAlert" class="alert"></div>
+
+    <form id="registerForm" novalidate>
+      <div class="field">
+        <label for="regName">Full Name</label>
+        <input type="text" id="regName" placeholder="e.g. John Smith" autocomplete="name">
+        <div class="hint">Minimum 2 characters</div>
+      </div>
+      <div class="field">
+        <label for="regEmail">Email Address</label>
+        <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" placeholder="At least 6 characters" autocomplete="new-password">
+        <div class="hint">Minimum 6 characters</div>
+      </div>
+      <div class="field">
+        <label for="regConfirm">Confirm Password</label>
+        <input type="password" id="regConfirm" placeholder="Re-enter your password" autocomplete="new-password">
+      </div>
+      <button type="submit" id="registerBtn" class="submit-btn register-btn">Create Student Account</button>
+    </form>
+
+    <div class="success-box" id="registerSuccess">
+      <div class="badge student">🎓 Student Account Created</div>
+      <h2 id="regWelcome"></h2>
+      <div class="sub" id="regSub"></div>
+      <div class="token-box">
+        <strong>JWT Token (saved to localStorage)</strong>
+        <span id="registerToken"></span>
+      </div>
+      <button class="back-btn" onclick="resetRegister()">Register Another</button>
+    </div>
+  </div>
+
+</div><!-- /card -->
 
 <script>
   const API = 'http://localhost:8080';
+  const SUPER_USER_EMAIL = 'basalvivek@gmail.com';
+  let currentRole = 'admin';
 
-  function showAlert(msg, type) {
-    const el = document.getElementById('alert');
+  /* ── Tab switching ── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+    });
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  }
+
+  /* ── Role toggle ── */
+  function selectRole(role) {
+    currentRole = role;
+    document.getElementById('roleAdmin').classList.toggle('active', role === 'admin');
+    document.getElementById('roleStudent').classList.toggle('active', role === 'student');
+
+    const emailInput = document.getElementById('loginEmail');
+    const btn = document.getElementById('loginBtn');
+
+    if (role === 'admin') {
+      emailInput.value = SUPER_USER_EMAIL;
+      emailInput.readOnly = true;
+      btn.textContent = 'Login as Super User';
+      btn.className = 'submit-btn admin-btn';
+    } else {
+      emailInput.value = '';
+      emailInput.readOnly = false;
+      emailInput.placeholder = 'student@example.com';
+      btn.textContent = 'Login as Student';
+      btn.className = 'submit-btn student-btn';
+    }
+    hideAlert('loginAlert');
+    emailInput.classList.remove('error');
+  }
+
+  /* ── Helpers ── */
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
     el.textContent = msg;
     el.className = 'alert ' + type;
     el.style.display = 'block';
   }
-  function hideAlert() {
-    document.getElementById('alert').style.display = 'none';
+  function hideAlert(id) { document.getElementById(id).style.display = 'none'; }
+  function markErr(id)    { document.getElementById(id).classList.add('error'); }
+  function clearErr(...ids) { ids.forEach(id => document.getElementById(id).classList.remove('error')); }
+  function setBusy(btnId, text) {
+    const b = document.getElementById(btnId);
+    b.disabled = true;
+    b.innerHTML = `<span class="spinner"></span>${text}`;
+    return b;
   }
-  function markError(id) {
-    document.getElementById(id).classList.add('error');
-  }
-  function clearErrors() {
-    ['name','email','password','confirm'].forEach(id => {
-      document.getElementById(id).classList.remove('error');
-    });
-  }
+  function setReady(btn, text) { btn.disabled = false; btn.textContent = text; }
 
-  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  /* ═══════════════════════════
+     LOGIN
+  ═══════════════════════════ */
+  selectRole('admin'); // default
+
+  document.getElementById('loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    hideAlert();
-    clearErrors();
+    hideAlert('loginAlert');
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    clearErr('loginEmail', 'loginPassword');
 
-    const name     = document.getElementById('name').value.trim();
-    const email    = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirm  = document.getElementById('confirm').value;
-
-    // Client-side validation
-    let valid = true;
-    if (name.length < 2) {
-      markError('name'); valid = false;
-    }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      markError('email'); valid = false;
-    }
-    if (password.length < 6) {
-      markError('password'); valid = false;
-    }
-    if (password !== confirm) {
-      markError('confirm');
-      showAlert('Passwords do not match.', 'failure');
-      return;
-    }
-    if (!valid) {
-      showAlert('Please fix the highlighted fields.', 'failure');
+    // Super user — enforce allowed email
+    if (currentRole === 'admin' && email.toLowerCase() !== SUPER_USER_EMAIL.toLowerCase()) {
+      markErr('loginEmail');
+      showAlert('loginAlert', 'Super User login is restricted to the authorised email only.', 'failure');
       return;
     }
 
-    // Submit
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Registering...';
+    // Student — block the super user email
+    if (currentRole === 'student' && email.toLowerCase() === SUPER_USER_EMAIL.toLowerCase()) {
+      markErr('loginEmail');
+      showAlert('loginAlert', 'That email belongs to the Super User. Please use the Super User tab to login.', 'failure');
+      return;
+    }
+
+    if (!email) { markErr('loginEmail'); return; }
+    if (!password) { markErr('loginPassword'); return; }
+
+    const btn = setBusy('loginBtn', 'Signing in…');
 
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
+      const res  = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
+
+      // Verify role matches selection
+      const returnedRole = data.role; // "ADMIN" or "STUDENT"
+      if (currentRole === 'admin' && returnedRole !== 'ADMIN') {
+        throw new Error('This account does not have Super User privileges.');
+      }
+      if (currentRole === 'student' && returnedRole !== 'STUDENT') {
+        throw new Error('This account is not a student account. Use Super User login.');
+      }
+
+      localStorage.setItem('token',     data.token);
+      localStorage.setItem('userEmail', data.email);
+      localStorage.setItem('userName',  data.name);
+      localStorage.setItem('userRole',  data.role);
+
+      // Show success
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('loginSuccess').style.display = 'block';
+
+      const isAdmin = returnedRole === 'ADMIN';
+      document.getElementById('loginBadge').className  = `badge ${isAdmin ? 'admin' : 'student'}`;
+      document.getElementById('loginBadge').textContent = isAdmin ? '👑 Super User' : '🎓 Student';
+      document.getElementById('loginWelcome').textContent = `Welcome back, ${data.name}!`;
+      document.getElementById('loginSub').textContent = `Logged in as ${data.email}`;
+      document.getElementById('loginToken').textContent = data.token;
+
+    } catch (err) {
+      showAlert('loginAlert', err.message, 'failure');
+      setReady(btn, currentRole === 'admin' ? 'Login as Super User' : 'Login as Student');
+    }
+  });
+
+  function resetLogin() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('loginSuccess').style.display = 'none';
+    document.getElementById('loginPassword').value = '';
+    hideAlert('loginAlert');
+    selectRole(currentRole);
+  }
+
+  /* ═══════════════════════════
+     REGISTER
+  ═══════════════════════════ */
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    hideAlert('registerAlert');
+    clearErr('regName', 'regEmail', 'regPassword', 'regConfirm');
+
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirm  = document.getElementById('regConfirm').value;
+
+    // Block super user email from registering (already exists as admin)
+    if (email.toLowerCase() === SUPER_USER_EMAIL.toLowerCase()) {
+      markErr('regEmail');
+      showAlert('registerAlert', 'This email is reserved for the Super User and cannot be registered.', 'failure');
+      return;
+    }
+
+    let valid = true;
+    if (name.length < 2)                                    { markErr('regName');     valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { markErr('regEmail');    valid = false; }
+    if (password.length < 6)                                { markErr('regPassword'); valid = false; }
+    if (!valid) { showAlert('registerAlert', 'Please fix the highlighted fields.', 'failure'); return; }
+    if (password !== confirm) {
+      markErr('regConfirm');
+      showAlert('registerAlert', 'Passwords do not match.', 'failure');
+      return;
+    }
+
+    const btn = setBusy('registerBtn', 'Creating account…');
+
+    try {
+      const res  = await fetch(`${API}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password })
       });
-
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || data.message || `Server error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
 
-      // Save token
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token',     data.token);
       localStorage.setItem('userEmail', data.email);
-      localStorage.setItem('userName', data.name);
-      localStorage.setItem('userRole', data.role);
+      localStorage.setItem('userName',  data.name);
+      localStorage.setItem('userRole',  data.role);
 
-      // Show success
       document.getElementById('registerForm').style.display = 'none';
-      document.getElementById('successMsg').textContent =
-        `Welcome, ${data.name}! Your account was created as ${data.role}.`;
-      document.getElementById('tokenDisplay').textContent = data.token;
-      document.getElementById('successBox').style.display = 'block';
+      document.getElementById('registerSuccess').style.display = 'block';
+      document.getElementById('regWelcome').textContent = `Welcome, ${data.name}!`;
+      document.getElementById('regSub').textContent = `Registered as ${data.email}`;
+      document.getElementById('registerToken').textContent = data.token;
 
     } catch (err) {
-      showAlert(err.message, 'failure');
-      btn.disabled = false;
-      btn.innerHTML = 'Create Account';
+      showAlert('registerAlert', err.message, 'failure');
+      setReady(btn, 'Create Student Account');
     }
   });
-</script>
 
+  function resetRegister() {
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('registerSuccess').style.display = 'none';
+    ['regName','regEmail','regPassword','regConfirm'].forEach(id => document.getElementById(id).value = '');
+    hideAlert('registerAlert');
+  }
+</script>
 </body>
 </html>
