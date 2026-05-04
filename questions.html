@@ -6,268 +6,220 @@
   <title>Questions — Education Portal</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --nav-h: 56px;
-      --side-w: 220px;
       --purple: #5a67d8;
-      --green: #38a169;
       --red: #e53e3e;
       --orange: #dd6b20;
+      --green: #38a169;
       --bg: #f7fafc;
-      --card: #ffffff;
       --border: #e2e8f0;
       --text: #1a202c;
       --muted: #718096;
     }
-
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
 
-    /* ── Top nav ── */
+    /* nav */
     .topnav {
       position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
       background: var(--purple); color: #fff;
-      display: flex; align-items: center; padding: 0 20px;
-      z-index: 100; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;
     }
-    .topnav .brand { font-size: 17px; font-weight: 700; flex: 1; }
-    .topnav .back-link {
-      background: rgba(255,255,255,0.2); border: none; color: #fff;
-      padding: 6px 14px; border-radius: 8px; font-size: 13px;
-      cursor: pointer; text-decoration: none; transition: background 0.2s;
-    }
-    .topnav .back-link:hover { background: rgba(255,255,255,0.3); }
-    .topnav .user-pill { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 14px; font-size: 13px; }
+    .brand { font-size: 17px; font-weight: 700; flex: 1; }
+    .pill  { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 14px; font-size: 13px; }
+    .back  { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; text-decoration: none; }
+    .back:hover { background: rgba(255,255,255,0.3); }
 
-    /* ── Main ── */
-    .main { margin-top: var(--nav-h); padding: 28px 32px; max-width: 920px; }
-
-    /* ── Page header ── */
+    /* layout */
+    .main { margin-top: var(--nav-h); padding: 28px 32px; max-width: 860px; }
     .page-header { margin-bottom: 24px; }
     .page-header h1 { font-size: 22px; font-weight: 700; }
     .page-header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-    /* ── Card ── */
-    .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
+    /* card */
+    .card { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
     .card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
 
-    /* ── Step breadcrumb ── */
-    .breadcrumb {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--muted); margin-bottom: 20px; flex-wrap: wrap;
-    }
-    .breadcrumb span { color: var(--text); font-weight: 600; }
-    .breadcrumb .sep { color: #cbd5e0; }
-
-    /* ── Selector row ── */
-    .sel-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; }
-    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+    /* form elements */
+    .row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
     .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-    .field select, .field input, .field textarea {
-      padding: 9px 12px; border: 1.5px solid var(--border);
-      border-radius: 8px; font-size: 14px; color: var(--text);
-      outline: none; font-family: inherit; background: #fff; transition: border-color 0.2s;
+    .field select, .field input {
+      padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; color: var(--text); outline: none; background: #fff;
+      font-family: inherit; transition: border-color 0.2s;
     }
-    .field select:focus, .field input:focus, .field textarea:focus { border-color: var(--purple); }
-    .field.error select, .field.error input, .field.error textarea { border-color: var(--red); }
+    .field select:focus, .field input:focus { border-color: var(--purple); }
+    .field select:disabled { background: #f7fafc; color: var(--muted); }
 
-    /* ── Content type badge ── */
-    .type-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
-      margin-bottom: 20px;
+    textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; color: var(--text); outline: none; font-family: inherit;
+      resize: vertical; line-height: 1.6; transition: border-color 0.2s;
     }
-    .type-THEORY       { background: #fef3c7; color: #92400e; }
-    .type-PRACTICE_TEST { background: #e0e7ff; color: #3730a3; }
-    .type-UNIT_TEST    { background: #dcfce7; color: #166534; }
-    .type-MOCK_EXAM    { background: #fce7f3; color: #9d174d; }
+    textarea:focus { border-color: var(--purple); }
 
-    /* ── Form ── */
-    .form-section { margin-bottom: 20px; }
-    .form-section h3 { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .label-row span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .word-count { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .word-count.warn   { color: var(--orange); }
+    .word-count.danger { color: var(--red); }
 
-    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
 
-    .correct-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
-    .correct-opt {
-      display: flex; align-items: center; gap: 6px; padding: 8px 16px;
-      border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;
-      font-size: 14px; font-weight: 600; transition: all 0.15s; user-select: none;
+    /* correct answer pills */
+    .ca-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .ca-pill {
+      padding: 9px 22px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s;
+      color: var(--muted); user-select: none;
     }
-    .correct-opt:hover { border-color: var(--purple); }
-    .correct-opt.selected { background: var(--purple); color: #fff; border-color: var(--purple); }
-    .correct-opt input { display: none; }
+    .ca-pill:hover { border-color: var(--purple); color: var(--purple); }
+    .ca-pill.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
-    /* char counter */
-    .counter-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .counter-row label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-    .char-count { font-size: 12px; color: var(--muted); }
-    .char-count.warn { color: var(--orange); }
-    .char-count.danger { color: var(--red); }
+    /* section label */
+    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
 
-    textarea.large { min-height: 200px; resize: vertical; line-height: 1.6; }
-    textarea.small { min-height: 70px; resize: vertical; }
-
-    /* ── Buttons ── */
-    .btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+    /* buttons */
+    .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
     .btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
     .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
     .btn-primary { background: var(--purple); color: #fff; }
-    .btn-danger  { background: var(--red); color: #fff; padding: 5px 12px; font-size: 12px; }
     .btn-ghost   { background: none; border: 1.5px solid var(--border); color: var(--muted); }
+    .btn-danger  { background: var(--red); color: #fff; padding: 5px 12px; font-size: 12px; }
 
-    /* ── Alert ── */
-    .alert { display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+    /* alert */
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
     .alert.ok  { background: #f0fff4; border: 1px solid #68d391; color: #276749; display: block; }
     .alert.err { background: #fff5f5; border: 1px solid #fc8181; color: #c53030; display: block; }
 
-    /* ── Table ── */
+    /* table */
     .tbl-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 8px 12px; border-bottom: 2px solid var(--border); }
     td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #f7fafc; }
-    .q-text { font-weight: 500; max-width: 300px; }
-    .q-type { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
-    .q-type.MCQ         { background: #e0e7ff; color: #3730a3; }
-    .q-type.DESCRIPTIVE { background: #fef3c7; color: #92400e; }
-    .empty-row td { text-align: center; color: var(--muted); padding: 24px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-desc { background: #fef3c7; color: #92400e; }
+    .badge-mcq  { background: #e0e7ff; color: #3730a3; }
+    .empty td   { text-align: center; color: var(--muted); padding: 24px; }
 
-    /* ── Spinner ── */
+    /* spinner */
     .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 5px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
   </style>
 </head>
 <body>
 
-<!-- Nav -->
 <nav class="topnav">
-  <div class="brand">📚 Education Portal &rsaquo; Questions</div>
-  <span class="user-pill" id="userPill"></span>
-  <a class="back-link" href="admin.html">← Back to Dashboard</a>
+  <div class="brand">📚 Education Portal › Questions</div>
+  <span class="pill" id="userPill"></span>
+  <a class="back" href="admin.html">← Dashboard</a>
 </nav>
 
 <main class="main">
   <div class="page-header">
     <h1>Manage Questions</h1>
-    <p>Select a content item to add questions. Theory content gets descriptive answers; all others get 4-option MCQs.</p>
+    <p>Select category, class and topic, choose a content type, then fill in the question form.</p>
   </div>
 
-  <!-- ── Step 1: Select content ── -->
+  <!-- ── Selectors ── -->
   <div class="card">
-    <div class="card-title">Step 1 — Select Content</div>
-    <div class="sel-row">
-      <div class="field" id="f-cat">
-        <label>Category</label>
-        <select id="sel-cat" onchange="onCatChange()"><option value="">— select —</option></select>
+    <div class="card-title">Select Location &amp; Content Type</div>
+    <div class="row">
+      <div class="field">
+        <label>Category *</label>
+        <select id="sel-cat" onchange="onCat()"><option value="">— select —</option></select>
       </div>
-      <div class="field" id="f-cls">
-        <label>Class</label>
-        <select id="sel-cls" onchange="onClsChange()" disabled><option value="">— select —</option></select>
+      <div class="field">
+        <label>Class *</label>
+        <select id="sel-cls" onchange="onCls()" disabled><option value="">— select —</option></select>
       </div>
-      <div class="field" id="f-top">
-        <label>Topic</label>
-        <select id="sel-top" onchange="onTopChange()" disabled><option value="">— select —</option></select>
+      <div class="field">
+        <label>Topic *</label>
+        <select id="sel-top" onchange="onTop()" disabled><option value="">— select —</option></select>
       </div>
-      <div class="field" id="f-con">
-        <label>Content</label>
-        <select id="sel-con" onchange="onConChange()" disabled><option value="">— select —</option></select>
+      <div class="field">
+        <label>Content Type *</label>
+        <select id="sel-type" onchange="onTypeChange()" disabled>
+          <option value="">— select type —</option>
+          <option value="THEORY">Theory</option>
+          <option value="PRACTICE_TEST">Practice Test</option>
+          <option value="UNIT_TEST">Unit Test</option>
+          <option value="MOCK_EXAM">Mock Exam</option>
+        </select>
       </div>
     </div>
-    <div id="content-badge"></div>
   </div>
 
-  <!-- ── Step 2: Add question ── -->
-  <div class="card" id="add-card" style="display:none">
-    <div class="card-title">Step 2 — Add Question</div>
+  <!-- ── Add Question form ── -->
+  <div class="card" id="form-card" style="display:none">
+    <div class="card-title" id="form-title">Add Question</div>
     <div id="q-alert" class="alert"></div>
 
-    <!-- Question text (shared) -->
-    <div class="form-section">
-      <h3>Question</h3>
-      <textarea id="q-text" class="small" style="width:100%" placeholder="Enter your question here…" oninput="autoResize(this)"></textarea>
+    <!-- Question text -->
+    <div style="margin-bottom:18px">
+      <div class="section-label">Question Text *</div>
+      <textarea id="q-text" rows="3" placeholder="Enter your question here…"></textarea>
     </div>
 
-    <!-- DESCRIPTIVE form -->
-    <div id="form-descriptive" style="display:none">
-      <div class="form-section">
-        <div class="counter-row">
-          <h3>Descriptive Answer</h3>
-          <span class="char-count" id="desc-count">0 / 2000 words</span>
-        </div>
-        <textarea id="q-desc-answer" class="large" style="width:100%"
-          placeholder="Write the full descriptive answer here (up to 2000 words)…"
-          oninput="updateWordCount()"></textarea>
-        <div style="font-size:11px; color:var(--muted); margin-top:4px;">Word count tracked. No hard limit enforced — guideline is 2000 words.</div>
+    <!-- THEORY: descriptive answer -->
+    <div id="theory-block" style="display:none; margin-bottom:18px">
+      <div class="label-row">
+        <span>Descriptive Answer *</span>
+        <span class="word-count" id="word-count">0 / 2000 words</span>
       </div>
+      <textarea id="q-desc" rows="10" placeholder="Write the full answer here — up to 2000 words…" oninput="updateWordCount()"></textarea>
+      <div class="hint">Word count shown above. Guideline: up to 2000 words.</div>
     </div>
 
-    <!-- MCQ form -->
-    <div id="form-mcq" style="display:none">
-      <div class="form-section">
-        <h3>Options</h3>
-        <div class="options-grid">
-          <div class="field">
-            <label>Option A *</label>
-            <input id="q-opt-a" placeholder="Option A">
-          </div>
-          <div class="field">
-            <label>Option B *</label>
-            <input id="q-opt-b" placeholder="Option B">
-          </div>
-          <div class="field">
-            <label>Option C</label>
-            <input id="q-opt-c" placeholder="Option C (optional)">
-          </div>
-          <div class="field">
-            <label>Option D</label>
-            <input id="q-opt-d" placeholder="Option D (optional)">
-          </div>
-        </div>
+    <!-- MCQ: four options + correct answer -->
+    <div id="mcq-block" style="display:none">
+      <div class="section-label" style="margin-bottom:12px">Options *</div>
+      <div class="options-grid">
+        <div class="field"><label>Option A *</label><input id="q-a" placeholder="Option A"></div>
+        <div class="field"><label>Option B *</label><input id="q-b" placeholder="Option B"></div>
+        <div class="field"><label>Option C</label><input id="q-c" placeholder="Option C (optional)"></div>
+        <div class="field"><label>Option D</label><input id="q-d" placeholder="Option D (optional)"></div>
       </div>
 
-      <div class="form-section">
-        <h3>Correct Answer *</h3>
-        <div class="correct-row">
-          <label class="correct-opt" id="ca-A" onclick="selectAnswer('A')"><input type="radio" name="ca" value="A"> A</label>
-          <label class="correct-opt" id="ca-B" onclick="selectAnswer('B')"><input type="radio" name="ca" value="B"> B</label>
-          <label class="correct-opt" id="ca-C" onclick="selectAnswer('C')"><input type="radio" name="ca" value="C"> C</label>
-          <label class="correct-opt" id="ca-D" onclick="selectAnswer('D')"><input type="radio" name="ca" value="D"> D</label>
+      <div style="margin-bottom:18px">
+        <div class="section-label" style="margin-bottom:10px">Correct Answer *</div>
+        <div class="ca-row">
+          <div class="ca-pill" id="ca-A" onclick="pickAnswer('A')">A</div>
+          <div class="ca-pill" id="ca-B" onclick="pickAnswer('B')">B</div>
+          <div class="ca-pill" id="ca-C" onclick="pickAnswer('C')">C</div>
+          <div class="ca-pill" id="ca-D" onclick="pickAnswer('D')">D</div>
         </div>
       </div>
     </div>
 
-    <!-- Explanation (shared, optional) -->
-    <div class="form-section">
-      <h3>Explanation <span style="font-weight:400; text-transform:none; letter-spacing:0; color:var(--muted)">(optional)</span></h3>
-      <textarea id="q-explanation" class="small" style="width:100%" placeholder="Optional: explain why this is the correct answer…" oninput="autoResize(this)"></textarea>
+    <!-- Explanation (both types) -->
+    <div style="margin-bottom:20px">
+      <div class="section-label">Explanation <span style="text-transform:none; font-weight:400">(optional)</span></div>
+      <textarea id="q-expl" rows="2" placeholder="Why is this the correct answer? (optional)"></textarea>
     </div>
 
-    <div style="display:flex; gap:10px; align-items:center;">
+    <div style="display:flex; gap:10px">
       <button class="btn btn-primary" id="save-btn" onclick="saveQuestion()">Save Question</button>
-      <button class="btn btn-ghost" onclick="resetForm()">Clear</button>
+      <button class="btn btn-ghost"   onclick="resetForm()">Clear</button>
     </div>
   </div>
 
-  <!-- ── Step 3: Existing questions ── -->
+  <!-- ── Questions list ── -->
   <div class="card" id="list-card" style="display:none">
-    <div class="card-title" id="list-title">Questions</div>
+    <div class="card-title" id="list-title">Saved Questions</div>
     <div class="tbl-wrap">
       <table>
         <thead>
-          <tr>
-            <th>#</th>
-            <th>Type</th>
-            <th>Question</th>
-            <th>Answer / Options</th>
-            <th>Action</th>
-          </tr>
+          <tr><th>#</th><th>Type</th><th>Question</th><th>Answer / Options</th><th></th></tr>
         </thead>
         <tbody id="q-tbody">
-          <tr class="empty-row"><td colspan="5">No questions yet.</td></tr>
+          <tr class="empty"><td colspan="5">No questions yet.</td></tr>
         </tbody>
       </table>
     </div>
@@ -275,260 +227,225 @@
 </main>
 
 <script>
-const API = 'http://localhost:8080';
-const token = localStorage.getItem('token');
-const role  = localStorage.getItem('userRole');
-if (!token || role !== 'ADMIN') { alert('Access denied.'); location.href = 'register.html'; }
-document.getElementById('userPill').textContent = '👑 ' + (localStorage.getItem('userName') || 'Admin');
-
-/* ── State ── */
-let selectedTopicId   = null;
-let selectedContentId = null;
-let selectedContentType = null;
-let correctAnswer = null;
-
-/* ── API helper ── */
-async function api(method, path, body) {
-  const res = await fetch(API + path, {
-    method,
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
-  return data;
-}
-
-function populateSelect(id, items, val, label, placeholder, enable) {
-  const el = document.getElementById(id);
-  el.innerHTML = `<option value="">${placeholder}</option>` +
-    items.map(i => `<option value="${i[val]}">${i[label]}</option>`).join('');
-  el.disabled = !enable;
-}
-
-/* ── Cascading selects ── */
-async function onCatChange() {
-  const catId = document.getElementById('sel-cat').value;
-  resetFrom('cls');
-  if (!catId) return;
-  try {
-    const data = await api('GET', '/api/admin/class?categoryId=' + catId);
-    populateSelect('sel-cls', data, 'id', 'name', '— select class —', true);
-  } catch(e) {}
-}
-
-async function onClsChange() {
-  const clsId = document.getElementById('sel-cls').value;
-  resetFrom('top');
-  if (!clsId) return;
-  try {
-    const data = await api('GET', '/api/admin/topic?classId=' + clsId);
-    populateSelect('sel-top', data, 'id', 'name', '— select topic —', true);
-  } catch(e) {}
-}
-
-async function onTopChange() {
-  const topId = document.getElementById('sel-top').value;
-  selectedTopicId = topId ? Number(topId) : null;
-  resetFrom('con');
-  if (!topId) return;
-  try {
-    const data = await api('GET', '/api/admin/content?topicId=' + topId);
-    populateSelect('sel-con', data, 'id', 'title', '— select content —', true);
-  } catch(e) {}
-}
-
-async function onConChange() {
-  const conId = document.getElementById('sel-con').value;
-  document.getElementById('add-card').style.display  = 'none';
-  document.getElementById('list-card').style.display = 'none';
-  document.getElementById('content-badge').innerHTML = '';
-  selectedContentId = null;
-  selectedContentType = null;
-  if (!conId) return;
-
-  try {
-    const con = await api('GET', '/api/admin/content/' + conId);
-    selectedContentId   = con.id;
-    selectedContentType = con.contentType;
-
-    // Show badge
-    const labels = { THEORY: '📖 Theory', PRACTICE_TEST: '✏️ Practice Test', UNIT_TEST: '📋 Unit Test', MOCK_EXAM: '🎓 Mock Exam' };
-    document.getElementById('content-badge').innerHTML =
-      `<span class="type-badge type-${con.contentType}">${labels[con.contentType] || con.contentType}</span>`;
-
-    // Show correct form
-    const isDescriptive = con.contentType === 'THEORY';
-    document.getElementById('form-descriptive').style.display = isDescriptive ? 'block' : 'none';
-    document.getElementById('form-mcq').style.display         = isDescriptive ? 'none'  : 'block';
-
-    document.getElementById('add-card').style.display  = 'block';
-    document.getElementById('list-card').style.display = 'block';
-    document.getElementById('list-title').textContent  = `Questions for "${con.title}"`;
-
-    await loadQuestions();
-  } catch(e) { alert(e.message); }
-}
-
-function resetFrom(level) {
-  const levels = ['cls','top','con'];
-  const idx = levels.indexOf(level);
-  levels.slice(idx).forEach(l => {
-    const el = document.getElementById('sel-' + l);
-    el.innerHTML = `<option value="">— select ${l} —</option>`;
-    el.disabled = true;
-  });
-  document.getElementById('add-card').style.display  = 'none';
-  document.getElementById('list-card').style.display = 'none';
-  document.getElementById('content-badge').innerHTML = '';
-  selectedContentId = null; selectedContentType = null;
-}
-
-/* ── MCQ correct answer selector ── */
-function selectAnswer(letter) {
-  correctAnswer = letter;
-  ['A','B','C','D'].forEach(l => {
-    document.getElementById('ca-' + l).classList.toggle('selected', l === letter);
-  });
-}
-
-/* ── Word count ── */
-function updateWordCount() {
-  const text  = document.getElementById('q-desc-answer').value.trim();
-  const words = text ? text.split(/\s+/).length : 0;
-  const el    = document.getElementById('desc-count');
-  el.textContent = words + ' / 2000 words';
-  el.className = 'char-count' + (words > 1800 ? ' danger' : words > 1500 ? ' warn' : '');
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
-}
-
-/* ── Save question ── */
-async function saveQuestion() {
-  hideAlert();
-  const qText = document.getElementById('q-text').value.trim();
-  if (!qText) { showAlert('Question text is required.', 'err'); return; }
-
-  const isDescriptive = selectedContentType === 'THEORY';
-  let payload = { questionText: qText, topicId: selectedTopicId, questionType: isDescriptive ? 'DESCRIPTIVE' : 'MCQ' };
-
-  if (isDescriptive) {
-    const ans = document.getElementById('q-desc-answer').value.trim();
-    if (!ans) { showAlert('Descriptive answer is required.', 'err'); return; }
-    payload.descriptiveAnswer = ans;
-  } else {
-    const a = document.getElementById('q-opt-a').value.trim();
-    const b = document.getElementById('q-opt-b').value.trim();
-    if (!a) { showAlert('Option A is required.', 'err'); return; }
-    if (!b) { showAlert('Option B is required.', 'err'); return; }
-    if (!correctAnswer) { showAlert('Please select the correct answer.', 'err'); return; }
-    payload.optionA = a;
-    payload.optionB = b;
-    payload.optionC = document.getElementById('q-opt-c').value.trim() || null;
-    payload.optionD = document.getElementById('q-opt-d').value.trim() || null;
-    payload.correctAnswer = correctAnswer;
+  const API   = 'http://localhost:8080';
+  const token = localStorage.getItem('token');
+  if (!token || localStorage.getItem('userRole') !== 'ADMIN') {
+    alert('Access denied.'); location.href = 'register.html';
   }
+  document.getElementById('userPill').textContent = '👑 ' + (localStorage.getItem('userName') || 'Admin');
 
-  const expl = document.getElementById('q-explanation').value.trim();
-  if (expl) payload.explanation = expl;
+  let topicId       = null;
+  let contentType   = null;
+  let correctAnswer = null;
 
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Saving…';
-
-  try {
-    await api('POST', '/api/admin/question', payload);
-    showAlert('Question saved successfully!', 'ok');
-    resetForm();
-    await loadQuestions();
-  } catch(e) {
-    showAlert(e.message, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Save Question';
-  }
-}
-
-function resetForm() {
-  document.getElementById('q-text').value = '';
-  document.getElementById('q-desc-answer').value = '';
-  document.getElementById('q-explanation').value = '';
-  document.getElementById('q-opt-a').value = '';
-  document.getElementById('q-opt-b').value = '';
-  document.getElementById('q-opt-c').value = '';
-  document.getElementById('q-opt-d').value = '';
-  correctAnswer = null;
-  ['A','B','C','D'].forEach(l => document.getElementById('ca-' + l).classList.remove('selected'));
-  document.getElementById('desc-count').textContent = '0 / 2000 words';
-  document.getElementById('desc-count').className = 'char-count';
-}
-
-function showAlert(msg, type) {
-  const el = document.getElementById('q-alert');
-  el.textContent = msg;
-  el.className = 'alert ' + type;
-  if (type === 'ok') setTimeout(hideAlert, 3000);
-}
-function hideAlert() {
-  const el = document.getElementById('q-alert');
-  el.className = 'alert';
-  el.textContent = '';
-}
-
-/* ── Load questions ── */
-async function loadQuestions() {
-  if (!selectedTopicId) return;
-  const tbody = document.getElementById('q-tbody');
-  tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Loading…</td></tr>';
-  try {
-    const data = await api('GET', '/api/admin/question?topicId=' + selectedTopicId);
-    // filter to show only questions matching selected content type
-    const filtered = data.filter(q => {
-      if (selectedContentType === 'THEORY') return q.questionType === 'DESCRIPTIVE';
-      return q.questionType === 'MCQ';
+  /* ── API ── */
+  async function api(method, path, body) {
+    const res = await fetch(API + path, {
+      method,
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: body ? JSON.stringify(body) : undefined
     });
-    if (!filtered.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No questions yet — add one above.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = filtered.map((q, i) => {
-      const answerCell = q.questionType === 'DESCRIPTIVE'
-        ? `<span style="color:var(--muted); font-style:italic">${(q.descriptiveAnswer || '').substring(0, 80)}${(q.descriptiveAnswer || '').length > 80 ? '…' : ''}</span>`
-        : `<strong>${q.correctAnswer}</strong> &nbsp;
-           <span style="color:var(--muted); font-size:12px">
-             A: ${q.optionA} &nbsp; B: ${q.optionB}
-             ${q.optionC ? ' &nbsp; C: ' + q.optionC : ''}
-             ${q.optionD ? ' &nbsp; D: ' + q.optionD : ''}
-           </span>`;
-      return `<tr>
-        <td>${i + 1}</td>
-        <td><span class="q-type ${q.questionType}">${q.questionType}</span></td>
-        <td class="q-text">${q.questionText}</td>
-        <td>${answerCell}</td>
-        <td><button class="btn btn-danger" onclick="deleteQuestion(${q.id})">Delete</button></td>
-      </tr>`;
-    }).join('');
-  } catch(e) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${e.message}</td></tr>`;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || data.message || 'Error ' + res.status);
+    return data;
   }
-}
 
-async function deleteQuestion(id) {
-  if (!confirm('Delete this question?')) return;
-  try { await api('DELETE', '/api/admin/question/' + id); await loadQuestions(); }
-  catch(e) { alert(e.message); }
-}
+  function fill(id, items, val, lbl, placeholder, enable) {
+    const el = document.getElementById(id);
+    el.innerHTML = `<option value="">${placeholder}</option>` +
+      items.map(i => `<option value="${i[val]}">${i[lbl]}</option>`).join('');
+    el.disabled = !enable;
+  }
 
-/* ── Boot: load categories ── */
-(async () => {
-  try {
-    const cats = await api('GET', '/api/admin/category');
-    populateSelect('sel-cat', cats, 'id', 'name', '— select category —', true);
-  } catch(e) {}
-})();
+  /* ── Cascades ── */
+  async function onCat() {
+    const id = document.getElementById('sel-cat').value;
+    reset('cls'); reset('top');
+    document.getElementById('sel-type').value = ''; document.getElementById('sel-type').disabled = true;
+    hideForm();
+    if (!id) return;
+    const data = await api('GET', '/api/admin/class?categoryId=' + id).catch(() => []);
+    fill('sel-cls', data, 'id', 'name', '— select class —', true);
+  }
+
+  async function onCls() {
+    const id = document.getElementById('sel-cls').value;
+    reset('top');
+    document.getElementById('sel-type').value = ''; document.getElementById('sel-type').disabled = true;
+    hideForm();
+    if (!id) return;
+    const data = await api('GET', '/api/admin/topic?classId=' + id).catch(() => []);
+    fill('sel-top', data, 'id', 'name', '— select topic —', true);
+  }
+
+  function onTop() {
+    const id = document.getElementById('sel-top').value;
+    topicId = id ? Number(id) : null;
+    document.getElementById('sel-type').value = '';
+    document.getElementById('sel-type').disabled = !id;
+    hideForm();
+  }
+
+  function onTypeChange() {
+    contentType = document.getElementById('sel-type').value;
+    if (!contentType || !topicId) { hideForm(); return; }
+
+    const isTheory = contentType === 'THEORY';
+    const labels   = { THEORY: 'Theory', PRACTICE_TEST: 'Practice Test', UNIT_TEST: 'Unit Test', MOCK_EXAM: 'Mock Exam' };
+
+    document.getElementById('theory-block').style.display = isTheory ? 'block' : 'none';
+    document.getElementById('mcq-block').style.display    = isTheory ? 'none'  : 'block';
+    document.getElementById('form-title').textContent     = `Add Question — ${labels[contentType]}`;
+    document.getElementById('form-card').style.display    = 'block';
+    document.getElementById('list-card').style.display    = 'block';
+    document.getElementById('list-title').textContent     = `${labels[contentType]} Questions for this Topic`;
+
+    resetForm();
+    loadQuestions();
+  }
+
+  function reset(level) {
+    const el = document.getElementById('sel-' + level);
+    const ph = { cls: '— select class —', top: '— select topic —' };
+    el.innerHTML = `<option value="">${ph[level]}</option>`;
+    el.disabled = true;
+    if (level === 'top') { topicId = null; }
+  }
+
+  function hideForm() {
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('list-card').style.display = 'none';
+    contentType = null;
+  }
+
+  /* ── Correct answer ── */
+  function pickAnswer(letter) {
+    correctAnswer = letter;
+    ['A','B','C','D'].forEach(l =>
+      document.getElementById('ca-' + l).classList.toggle('active', l === letter)
+    );
+  }
+
+  /* ── Word count ── */
+  function updateWordCount() {
+    const words = document.getElementById('q-desc').value.trim().split(/\s+/).filter(Boolean).length;
+    const el    = document.getElementById('word-count');
+    el.textContent = words + ' / 2000 words';
+    el.className   = 'word-count' + (words > 1800 ? ' danger' : words > 1500 ? ' warn' : '');
+  }
+
+  /* ── Save ── */
+  async function saveQuestion() {
+    clearAlert();
+    const qText = document.getElementById('q-text').value.trim();
+    if (!qText) { showAlert('Question text is required.', 'err'); return; }
+
+    const isTheory = contentType === 'THEORY';
+    const payload  = { questionText: qText, topicId, questionType: isTheory ? 'DESCRIPTIVE' : 'MCQ' };
+
+    if (isTheory) {
+      const ans = document.getElementById('q-desc').value.trim();
+      if (!ans) { showAlert('Descriptive answer is required.', 'err'); return; }
+      payload.descriptiveAnswer = ans;
+    } else {
+      const a = document.getElementById('q-a').value.trim();
+      const b = document.getElementById('q-b').value.trim();
+      if (!a) { showAlert('Option A is required.', 'err'); return; }
+      if (!b) { showAlert('Option B is required.', 'err'); return; }
+      if (!correctAnswer) { showAlert('Please select the correct answer (A / B / C / D).', 'err'); return; }
+      payload.optionA = a;
+      payload.optionB = b;
+      payload.optionC = document.getElementById('q-c').value.trim() || null;
+      payload.optionD = document.getElementById('q-d').value.trim() || null;
+      payload.correctAnswer = correctAnswer;
+    }
+
+    const expl = document.getElementById('q-expl').value.trim();
+    if (expl) payload.explanation = expl;
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Saving…';
+
+    try {
+      await api('POST', '/api/admin/question', payload);
+      showAlert('Question saved!', 'ok');
+      resetForm();
+      loadQuestions();
+    } catch(e) {
+      showAlert(e.message, 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Question';
+    }
+  }
+
+  function resetForm() {
+    ['q-text','q-desc','q-a','q-b','q-c','q-d','q-expl'].forEach(id =>
+      document.getElementById(id).value = '');
+    correctAnswer = null;
+    ['A','B','C','D'].forEach(l => document.getElementById('ca-' + l).classList.remove('active'));
+    document.getElementById('word-count').textContent = '0 / 2000 words';
+    document.getElementById('word-count').className   = 'word-count';
+  }
+
+  /* ── Alerts ── */
+  function showAlert(msg, type) {
+    const el = document.getElementById('q-alert');
+    el.textContent = msg;
+    el.className = 'alert ' + type;
+    if (type === 'ok') setTimeout(clearAlert, 3000);
+  }
+  function clearAlert() {
+    const el = document.getElementById('q-alert');
+    el.className = 'alert';
+    el.textContent = '';
+  }
+
+  /* ── List ── */
+  async function loadQuestions() {
+    if (!topicId) return;
+    const tbody = document.getElementById('q-tbody');
+    tbody.innerHTML = '<tr class="empty"><td colspan="5">Loading…</td></tr>';
+    try {
+      const isTheory = contentType === 'THEORY';
+      const all = await api('GET', '/api/admin/question?topicId=' + topicId);
+      const rows = all.filter(q => isTheory ? q.questionType === 'DESCRIPTIVE' : q.questionType === 'MCQ');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr class="empty"><td colspan="5">No questions yet — add one above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map((q, i) => {
+        const answer = q.questionType === 'DESCRIPTIVE'
+          ? `<em style="color:var(--muted)">${(q.descriptiveAnswer || '').slice(0,100)}${(q.descriptiveAnswer||'').length>100?'…':''}</em>`
+          : `<strong>Correct: ${q.correctAnswer}</strong><br>
+             <span style="color:var(--muted);font-size:12px">A: ${q.optionA} &nbsp; B: ${q.optionB}${q.optionC?' &nbsp; C: '+q.optionC:''}${q.optionD?' &nbsp; D: '+q.optionD:''}</span>`;
+        const badge = q.questionType === 'DESCRIPTIVE'
+          ? '<span class="badge badge-desc">Descriptive</span>'
+          : '<span class="badge badge-mcq">MCQ</span>';
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${badge}</td>
+          <td style="max-width:280px">${q.questionText}</td>
+          <td>${answer}</td>
+          <td><button class="btn btn-danger" onclick="deleteQ(${q.id})">Delete</button></td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr class="empty"><td colspan="5">${e.message}</td></tr>`;
+    }
+  }
+
+  async function deleteQ(id) {
+    if (!confirm('Delete this question?')) return;
+    try { await api('DELETE', '/api/admin/question/' + id); loadQuestions(); }
+    catch(e) { alert(e.message); }
+  }
+
+  /* ── Boot ── */
+  api('GET', '/api/admin/category')
+    .then(cats => fill('sel-cat', cats, 'id', 'name', '— select category —', true))
+    .catch(() => {});
 </script>
 </body>
 </html>
