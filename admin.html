@@ -189,7 +189,7 @@
   <div class="nav-item" id="nav-content" onclick="show('content')">
     <span class="icon">🎯</span> Content
   </div>
-  <div class="nav-item" id="nav-questions" onclick="location.href='questions.html'">
+  <div class="nav-item" id="nav-questions" onclick="show('questions')">
     <span class="icon">❓</span> Questions
   </div>
 </aside>
@@ -437,6 +437,104 @@
     </div>
   </div>
 
+  <!-- ════════ QUESTIONS ════════ -->
+  <div id="sec-questions" class="section">
+    <div class="page-header">
+      <h1>Questions</h1>
+      <p>Select category, class and topic, then choose a content type to add questions.</p>
+    </div>
+
+    <!-- Selectors -->
+    <div class="card">
+      <div class="card-title">Select Location &amp; Content Type</div>
+      <div class="form-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="qq-cat" onchange="qqOnCat()"><option value="">— select —</option></select>
+        </div>
+        <div class="field">
+          <label>Class</label>
+          <select id="qq-cls" onchange="qqOnCls()" disabled><option value="">— select —</option></select>
+        </div>
+        <div class="field">
+          <label>Topic</label>
+          <select id="qq-top" onchange="qqOnTop()" disabled><option value="">— select —</option></select>
+        </div>
+        <div class="field">
+          <label>Content Type</label>
+          <select id="qq-type" onchange="qqOnType()" disabled>
+            <option value="">— select type —</option>
+            <option value="THEORY">Theory</option>
+            <option value="PRACTICE_TEST">Practice Test</option>
+            <option value="UNIT_TEST">Unit Test</option>
+            <option value="MOCK_EXAM">Mock Exam</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add question form -->
+    <div class="card" id="qq-form-card" style="display:none">
+      <div class="card-title" id="qq-form-title">Add Question</div>
+      <div id="qq-alert" class="alert"></div>
+
+      <div class="field" style="margin-bottom:16px">
+        <label>Question Text *</label>
+        <textarea id="qq-text" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#5a67d8'" onblur="this.style.borderColor='#e2e8f0'" placeholder="Enter your question here…"></textarea>
+      </div>
+
+      <!-- Theory block -->
+      <div id="qq-theory-block" style="display:none;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#718096">Descriptive Answer *</label>
+          <span id="qq-word-count" style="font-size:12px;color:#718096">0 / 2000 words</span>
+        </div>
+        <textarea id="qq-desc" rows="10" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;line-height:1.6;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#5a67d8'" onblur="this.style.borderColor='#e2e8f0'" oninput="qqWordCount()" placeholder="Write the full answer here — up to 2000 words…"></textarea>
+        <div style="font-size:11px;color:#a0aec0;margin-top:4px">Word count shown above. Guideline: up to 2000 words.</div>
+      </div>
+
+      <!-- MCQ block -->
+      <div id="qq-mcq-block" style="display:none;margin-bottom:16px">
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#718096;display:block;margin-bottom:10px">Options *</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div class="field"><label>Option A *</label><input id="qq-a" placeholder="Option A"></div>
+          <div class="field"><label>Option B *</label><input id="qq-b" placeholder="Option B"></div>
+          <div class="field"><label>Option C</label><input id="qq-c" placeholder="Option C (optional)"></div>
+          <div class="field"><label>Option D</label><input id="qq-d" placeholder="Option D (optional)"></div>
+        </div>
+        <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#718096;display:block;margin-bottom:8px">Correct Answer *</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div id="qq-ca-A" onclick="qqPick('A')" style="padding:9px 22px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#718096;transition:all .15s;user-select:none">A</div>
+          <div id="qq-ca-B" onclick="qqPick('B')" style="padding:9px 22px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#718096;transition:all .15s;user-select:none">B</div>
+          <div id="qq-ca-C" onclick="qqPick('C')" style="padding:9px 22px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#718096;transition:all .15s;user-select:none">C</div>
+          <div id="qq-ca-D" onclick="qqPick('D')" style="padding:9px 22px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;color:#718096;transition:all .15s;user-select:none">D</div>
+        </div>
+      </div>
+
+      <!-- Explanation -->
+      <div class="field" style="margin-bottom:18px">
+        <label>Explanation <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#a0aec0">(optional)</span></label>
+        <textarea id="qq-expl" rows="2" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='#5a67d8'" onblur="this.style.borderColor='#e2e8f0'" placeholder="Why is this the correct answer? (optional)"></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" id="qq-save-btn" onclick="qqSave()">Save Question</button>
+        <button class="btn" style="background:none;border:1.5px solid #e2e8f0;color:#718096" onclick="qqReset()">Clear</button>
+      </div>
+    </div>
+
+    <!-- Questions list -->
+    <div class="card" id="qq-list-card" style="display:none">
+      <div class="card-title" id="qq-list-title">Saved Questions</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Question</th><th>Answer / Options</th><th>Action</th></tr></thead>
+          <tbody id="qq-tbody"><tr class="empty-row"><td colspan="5">No questions yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -495,7 +593,7 @@ function populateSelect(selId, items, valKey, labelKey, placeholder) {
    NAVIGATION
 ══════════════════════════════ */
 function show(sec) {
-  ['categories','classes','topics','content'].forEach(s => {
+  ['categories','classes','topics','content','questions'].forEach(s => {
     document.getElementById('sec-' + s).classList.toggle('active', s === sec);
     document.getElementById('nav-' + s).classList.toggle('active', s === sec);
   });
@@ -503,6 +601,7 @@ function show(sec) {
   if (sec === 'classes')    { loadCatSelects(['cls-cat-sel','cls-filter-cat']); }
   if (sec === 'topics')     { loadCatSelects(['top-cat-sel','top-filter-cat']); }
   if (sec === 'content')    { loadCatSelects(['con-cat-sel','con-filter-cat']); }
+  if (sec === 'questions')  { qqLoadCats(); }
 }
 
 /* ══════════════════════════════
@@ -818,6 +917,199 @@ async function createContent() {
 async function deleteContent(id) {
   if (!confirm('Delete this content item?')) return;
   try { await api('DELETE', '/api/admin/content/' + id); loadContent(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   QUESTIONS
+══════════════════════════════ */
+let qqTopicId = null, qqType = null, qqCorrect = null;
+
+async function qqLoadCats() {
+  try {
+    const cats = await api('GET', '/api/admin/category');
+    populateSelect('qq-cat', cats, 'id', 'name', '— select —');
+  } catch(e) {}
+  document.getElementById('qq-cls').innerHTML  = '<option value="">— select —</option>';
+  document.getElementById('qq-cls').disabled   = true;
+  document.getElementById('qq-top').innerHTML  = '<option value="">— select —</option>';
+  document.getElementById('qq-top').disabled   = true;
+  document.getElementById('qq-type').value     = '';
+  document.getElementById('qq-type').disabled  = true;
+  qqTopicId = null; qqType = null;
+  document.getElementById('qq-form-card').style.display = 'none';
+  document.getElementById('qq-list-card').style.display = 'none';
+}
+
+async function qqOnCat() {
+  const id = document.getElementById('qq-cat').value;
+  document.getElementById('qq-cls').innerHTML = '<option value="">— select —</option>';
+  document.getElementById('qq-cls').disabled  = true;
+  document.getElementById('qq-top').innerHTML = '<option value="">— select —</option>';
+  document.getElementById('qq-top').disabled  = true;
+  document.getElementById('qq-type').value    = '';
+  document.getElementById('qq-type').disabled = true;
+  qqTopicId = null; qqType = null;
+  document.getElementById('qq-form-card').style.display = 'none';
+  document.getElementById('qq-list-card').style.display = 'none';
+  if (!id) return;
+  try {
+    const data = await api('GET', '/api/admin/class?categoryId=' + id);
+    populateSelect('qq-cls', data, 'id', 'name', '— select —');
+    document.getElementById('qq-cls').disabled = false;
+  } catch(e) {}
+}
+
+async function qqOnCls() {
+  const id = document.getElementById('qq-cls').value;
+  document.getElementById('qq-top').innerHTML = '<option value="">— select —</option>';
+  document.getElementById('qq-top').disabled  = true;
+  document.getElementById('qq-type').value    = '';
+  document.getElementById('qq-type').disabled = true;
+  qqTopicId = null; qqType = null;
+  document.getElementById('qq-form-card').style.display = 'none';
+  document.getElementById('qq-list-card').style.display = 'none';
+  if (!id) return;
+  try {
+    const data = await api('GET', '/api/admin/topic?classId=' + id);
+    populateSelect('qq-top', data, 'id', 'name', '— select —');
+    document.getElementById('qq-top').disabled = false;
+  } catch(e) {}
+}
+
+function qqOnTop() {
+  const id = document.getElementById('qq-top').value;
+  qqTopicId = id ? Number(id) : null;
+  document.getElementById('qq-type').value    = '';
+  document.getElementById('qq-type').disabled = !id;
+  document.getElementById('qq-form-card').style.display = 'none';
+  document.getElementById('qq-list-card').style.display = 'none';
+  qqType = null;
+}
+
+function qqOnType() {
+  qqType = document.getElementById('qq-type').value;
+  if (!qqType || !qqTopicId) {
+    document.getElementById('qq-form-card').style.display = 'none';
+    document.getElementById('qq-list-card').style.display = 'none';
+    return;
+  }
+  const labels = { THEORY:'Theory', PRACTICE_TEST:'Practice Test', UNIT_TEST:'Unit Test', MOCK_EXAM:'Mock Exam' };
+  document.getElementById('qq-form-title').textContent  = 'Add Question — ' + labels[qqType];
+  document.getElementById('qq-list-title').textContent  = labels[qqType] + ' Questions for this Topic';
+  document.getElementById('qq-theory-block').style.display = qqType === 'THEORY' ? 'block' : 'none';
+  document.getElementById('qq-mcq-block').style.display    = qqType === 'THEORY' ? 'none'  : 'block';
+  document.getElementById('qq-form-card').style.display = 'block';
+  document.getElementById('qq-list-card').style.display = 'block';
+  qqReset();
+  qqLoadList();
+}
+
+function qqPick(letter) {
+  qqCorrect = letter;
+  ['A','B','C','D'].forEach(l => {
+    const el = document.getElementById('qq-ca-' + l);
+    el.style.background   = l === letter ? '#5a67d8' : '';
+    el.style.color        = l === letter ? '#fff'    : '#718096';
+    el.style.borderColor  = l === letter ? '#5a67d8' : '#e2e8f0';
+  });
+}
+
+function qqWordCount() {
+  const words = document.getElementById('qq-desc').value.trim().split(/\s+/).filter(Boolean).length;
+  const el    = document.getElementById('qq-word-count');
+  el.textContent = words + ' / 2000 words';
+  el.style.color = words > 1800 ? '#e53e3e' : words > 1500 ? '#dd6b20' : '#718096';
+}
+
+async function qqSave() {
+  const alertId = 'qq-alert';
+  const qText   = document.getElementById('qq-text').value.trim();
+  if (!qText) { showAlert(alertId, 'Question text is required.', 'err'); return; }
+
+  const isTheory = qqType === 'THEORY';
+  const payload  = { questionText: qText, topicId: qqTopicId, questionType: isTheory ? 'DESCRIPTIVE' : 'MCQ' };
+
+  if (isTheory) {
+    const ans = document.getElementById('qq-desc').value.trim();
+    if (!ans) { showAlert(alertId, 'Descriptive answer is required.', 'err'); return; }
+    payload.descriptiveAnswer = ans;
+  } else {
+    const a = document.getElementById('qq-a').value.trim();
+    const b = document.getElementById('qq-b').value.trim();
+    if (!a) { showAlert(alertId, 'Option A is required.', 'err'); return; }
+    if (!b) { showAlert(alertId, 'Option B is required.', 'err'); return; }
+    if (!qqCorrect) { showAlert(alertId, 'Please select the correct answer.', 'err'); return; }
+    payload.optionA = a;
+    payload.optionB = b;
+    payload.optionC = document.getElementById('qq-c').value.trim() || null;
+    payload.optionD = document.getElementById('qq-d').value.trim() || null;
+    payload.correctAnswer = qqCorrect;
+  }
+
+  const expl = document.getElementById('qq-expl').value.trim();
+  if (expl) payload.explanation = expl;
+
+  const btn = setBusy('qq-save-btn', 'Saving…');
+  try {
+    await api('POST', '/api/admin/question', payload);
+    showAlert(alertId, 'Question saved!', 'ok');
+    qqReset();
+    qqLoadList();
+  } catch(e) {
+    showAlert(alertId, e.message, 'err');
+  } finally {
+    setReady(btn, 'Save Question');
+  }
+}
+
+function qqReset() {
+  ['qq-text','qq-desc','qq-a','qq-b','qq-c','qq-d','qq-expl'].forEach(id =>
+    document.getElementById(id).value = '');
+  qqCorrect = null;
+  ['A','B','C','D'].forEach(l => {
+    const el = document.getElementById('qq-ca-' + l);
+    if (el) { el.style.background = ''; el.style.color = '#718096'; el.style.borderColor = '#e2e8f0'; }
+  });
+  document.getElementById('qq-word-count').textContent = '0 / 2000 words';
+  document.getElementById('qq-word-count').style.color = '#718096';
+}
+
+async function qqLoadList() {
+  if (!qqTopicId) return;
+  const tbody = document.getElementById('qq-tbody');
+  tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Loading…</td></tr>';
+  try {
+    const all  = await api('GET', '/api/admin/question?topicId=' + qqTopicId);
+    const rows = all.filter(q => qqType === 'THEORY' ? q.questionType === 'DESCRIPTIVE' : q.questionType === 'MCQ');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No questions yet — add one above.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map((q, i) => {
+      const answer = q.questionType === 'DESCRIPTIVE'
+        ? `<em style="color:#718096">${(q.descriptiveAnswer||'').slice(0,100)}${(q.descriptiveAnswer||'').length>100?'…':''}</em>`
+        : `<strong>Correct: ${q.correctAnswer}</strong><br>
+           <span style="color:#718096;font-size:12px">A: ${q.optionA} &nbsp; B: ${q.optionB}
+           ${q.optionC?' &nbsp; C:'+q.optionC:''}${q.optionD?' &nbsp; D:'+q.optionD:''}</span>`;
+      const badge = q.questionType === 'DESCRIPTIVE'
+        ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">Descriptive</span>'
+        : '<span style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">MCQ</span>';
+      return `<tr>
+        <td>${i+1}</td><td>${badge}</td>
+        <td style="max-width:260px">${q.questionText}</td>
+        <td>${answer}</td>
+        <td><button class="btn btn-danger" onclick="qqDelete(${q.id})">Delete</button></td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${e.message}</td></tr>`;
+  }
+}
+
+async function qqDelete(id) {
+  if (!confirm('Delete this question?')) return;
+  try { await api('DELETE', '/api/admin/question/' + id); qqLoadList(); }
   catch(e) { alert(e.message); }
 }
 
