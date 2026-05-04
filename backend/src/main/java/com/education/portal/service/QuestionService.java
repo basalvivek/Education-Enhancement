@@ -29,15 +29,20 @@ public class QuestionService {
     }
 
     public QuestionResponse create(QuestionRequest request) {
+        validate(request);
         Topic topic = topicService.findOrThrow(request.getTopicId());
 
+        boolean descriptive = "DESCRIPTIVE".equalsIgnoreCase(request.getQuestionType());
+
         Question question = Question.builder()
+                .questionType(descriptive ? "DESCRIPTIVE" : "MCQ")
                 .questionText(request.getQuestionText())
-                .optionA(request.getOptionA())
-                .optionB(request.getOptionB())
-                .optionC(request.getOptionC())
-                .optionD(request.getOptionD())
-                .correctAnswer(request.getCorrectAnswer())
+                .optionA(descriptive ? null : request.getOptionA())
+                .optionB(descriptive ? null : request.getOptionB())
+                .optionC(descriptive ? null : request.getOptionC())
+                .optionD(descriptive ? null : request.getOptionD())
+                .correctAnswer(descriptive ? null : request.getCorrectAnswer())
+                .descriptiveAnswer(descriptive ? request.getDescriptiveAnswer() : null)
                 .explanation(request.getExplanation())
                 .topic(topic)
                 .build();
@@ -45,13 +50,18 @@ public class QuestionService {
     }
 
     public QuestionResponse update(Long id, QuestionRequest request) {
+        validate(request);
         Question question = findOrThrow(id);
+        boolean descriptive = "DESCRIPTIVE".equalsIgnoreCase(request.getQuestionType());
+
+        question.setQuestionType(descriptive ? "DESCRIPTIVE" : "MCQ");
         question.setQuestionText(request.getQuestionText());
-        question.setOptionA(request.getOptionA());
-        question.setOptionB(request.getOptionB());
-        question.setOptionC(request.getOptionC());
-        question.setOptionD(request.getOptionD());
-        question.setCorrectAnswer(request.getCorrectAnswer());
+        question.setOptionA(descriptive ? null : request.getOptionA());
+        question.setOptionB(descriptive ? null : request.getOptionB());
+        question.setOptionC(descriptive ? null : request.getOptionC());
+        question.setOptionD(descriptive ? null : request.getOptionD());
+        question.setCorrectAnswer(descriptive ? null : request.getCorrectAnswer());
+        question.setDescriptiveAnswer(descriptive ? request.getDescriptiveAnswer() : null);
         question.setExplanation(request.getExplanation());
         return QuestionResponse.from(questionRepository.save(question));
     }
@@ -68,5 +78,19 @@ public class QuestionService {
 
     public List<Question> findRandomByTopic(Long topicId, int count) {
         return questionRepository.findRandomByTopicId(topicId, count);
+    }
+
+    private void validate(QuestionRequest r) {
+        if ("DESCRIPTIVE".equalsIgnoreCase(r.getQuestionType())) {
+            if (r.getDescriptiveAnswer() == null || r.getDescriptiveAnswer().isBlank())
+                throw new IllegalArgumentException("Descriptive answer is required for DESCRIPTIVE questions.");
+        } else {
+            if (r.getOptionA() == null || r.getOptionA().isBlank())
+                throw new IllegalArgumentException("Option A is required for MCQ questions.");
+            if (r.getOptionB() == null || r.getOptionB().isBlank())
+                throw new IllegalArgumentException("Option B is required for MCQ questions.");
+            if (r.getCorrectAnswer() == null || r.getCorrectAnswer().isBlank())
+                throw new IllegalArgumentException("Correct answer is required for MCQ questions.");
+        }
     }
 }

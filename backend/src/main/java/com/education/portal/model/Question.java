@@ -16,10 +16,13 @@ public class Question {
     @Column(name = "question_text", nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
-    @Column(name = "option_a", nullable = false, length = 500)
+    @Column(name = "question_type", nullable = false, length = 15)
+    private String questionType = "MCQ";
+
+    @Column(name = "option_a", length = 500)
     private String optionA;
 
-    @Column(name = "option_b", nullable = false, length = 500)
+    @Column(name = "option_b", length = 500)
     private String optionB;
 
     @Column(name = "option_c", length = 500)
@@ -28,8 +31,11 @@ public class Question {
     @Column(name = "option_d", length = 500)
     private String optionD;
 
-    @Column(name = "correct_answer", nullable = false, length = 1)
+    @Column(name = "correct_answer", length = 1)
     private String correctAnswer;
+
+    @Column(name = "descriptive_answer", columnDefinition = "TEXT")
+    private String descriptiveAnswer;
 
     @Column(columnDefinition = "TEXT")
     private String explanation;

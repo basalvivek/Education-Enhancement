@@ -11,19 +11,21 @@ public class QuestionRequest {
     @NotBlank
     private String questionText;
 
+    // "MCQ" or "DESCRIPTIVE"
     @NotBlank
+    private String questionType;
+
+    // MCQ fields (required when questionType = MCQ)
     private String optionA;
-
-    @NotBlank
     private String optionB;
-
     private String optionC;
-
     private String optionD;
 
-    @NotBlank
     @Pattern(regexp = "[ABCD]", message = "correctAnswer must be A, B, C, or D")
     private String correctAnswer;
+
+    // Descriptive field (required when questionType = DESCRIPTIVE)
+    private String descriptiveAnswer;
 
     private String explanation;
 
