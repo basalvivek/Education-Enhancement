@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Education Enhancement Portal — Test Console</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  header { background: #1e3a5f; padding: 18px 32px; display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #2563eb; }
+  header h1 { font-size: 1.4rem; font-weight: 700; color: #93c5fd; }
+  #status-bar { margin-left: auto; font-size: 0.85rem; background: #0f2944; padding: 6px 14px; border-radius: 20px; border: 1px solid #334155; }
+  #status-bar span { font-weight: 600; }
+  .role-admin { color: #f59e0b; }
+  .role-student { color: #34d399; }
+  .role-none { color: #94a3b8; }
+
+  nav { display: flex; gap: 4px; background: #1e293b; padding: 10px 32px; flex-wrap: wrap; border-bottom: 1px solid #334155; }
+  nav button { background: transparent; border: none; color: #94a3b8; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all .15s; }
+  nav button:hover { background: #334155; color: #e2e8f0; }
+  nav button.active { background: #2563eb; color: #fff; }
+  nav .sep { width: 1px; background: #334155; margin: 4px 6px; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 28px 24px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; color: #93c5fd; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155; }
+
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 22px; margin-bottom: 20px; }
+  .card h3 { font-size: 0.9rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 16px; }
+
+  .form-row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-bottom: 14px; }
+  label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 4px; }
+  input, select, textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 9px 12px; color: #e2e8f0; font-size: 0.9rem; outline: none; transition: border-color .15s; }
+  input:focus, select:focus, textarea:focus { border-color: #2563eb; }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #1e293b; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-success { background: #059669; color: #fff; }
+  .btn-success:hover { background: #047857; }
+  .btn-danger  { background: #dc2626; color: #fff; }
+  .btn-danger:hover  { background: #b91c1c; }
+  .btn-outline { background: transparent; color: #93c5fd; border: 1px solid #2563eb; }
+  .btn-outline:hover { background: #1e3a5f; }
+
+  .response { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 14px; margin-top: 14px; font-family: 'Consolas', monospace; font-size: 0.8rem; white-space: pre-wrap; max-height: 280px; overflow-y: auto; color: #a5f3fc; display: none; }
+  .response.show { display: block; }
+  .response.error { color: #fca5a5; border-color: #7f1d1d; }
+  .response.success { color: #6ee7b7; border-color: #064e3b; }
+
+  .token-box { background: #0f172a; border: 1px solid #2563eb; border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 0.75rem; word-break: break-all; color: #93c5fd; margin-top: 10px; display: none; }
+  .token-box.show { display: block; }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-green { background: #064e3b; color: #6ee7b7; }
+  .badge-red   { background: #7f1d1d; color: #fca5a5; }
+  .badge-blue  { background: #1e3a5f; color: #93c5fd; }
+
+  .q-card { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .q-card p { font-size: 0.95rem; margin-bottom: 12px; color: #e2e8f0; }
+  .q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .q-option { display: flex; align-items: center; gap: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; cursor: pointer; transition: all .15s; }
+  .q-option:hover { border-color: #2563eb; }
+  .q-option input { width: auto; margin: 0; }
+  .q-option label { cursor: pointer; font-size: 0.875rem; margin: 0; color: #e2e8f0; }
+
+  .progress-bar { background: #334155; border-radius: 8px; height: 10px; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 8px; background: #2563eb; transition: width .4s; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 16px; text-align: center; }
+  .stat .val { font-size: 2rem; font-weight: 700; color: #93c5fd; }
+  .stat .lbl { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+
+  .tag-weak   { background: #7f1d1d; color: #fca5a5; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+  .tag-strong { background: #064e3b; color: #6ee7b7; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+  .step-indicator { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+  .step { padding: 6px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 20px; font-size: 0.78rem; color: #64748b; }
+  .step.done { border-color: #059669; color: #6ee7b7; }
+  .step.current { border-color: #2563eb; color: #93c5fd; font-weight: 600; }
+
+  #exam-questions { display: none; }
+  #exam-result { display: none; }
+  #progress-data { display: none; }
+  #analytics-data { display: none; }
+
+  .info-box { background: #1e3a5f; border: 1px solid #2563eb; border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; color: #93c5fd; margin-bottom: 16px; }
+  .info-box b { color: #bfdbfe; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>🎓</div>
+  <h1>Education Enhancement Portal — Test Console</h1>
+  <div id="status-bar">Logged in as: <span id="user-label" class="role-none">Not logged in</span></div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('auth')">🔐 Auth</button>
+  <div class="sep"></div>
+  <button onclick="showTab('admin')">⚙️ Admin Setup</button>
+  <div class="sep"></div>
+  <button onclick="showTab('exam')">📝 Take Exam</button>
+  <button onclick="showTab('progress')">📊 My Progress</button>
+  <div class="sep"></div>
+  <button onclick="showTab('analytics')">🔬 Analytics</button>
+</nav>
+
+<main>
+
+<!-- ==================== AUTH ==================== -->
+<div id="tab-auth" class="section active">
+  <h2>🔐 Authentication</h2>
+  <div class="step-indicator">
+    <div class="step current" id="step-login">1. Login</div>
+    <div class="step" id="step-token">2. Token Stored</div>
+    <div class="step" id="step-ready">3. Ready to Test</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+    <div class="card">
+      <h3>Login (Admin or Student)</h3>
+      <div class="info-box">Default admin: <b>admin@education.com</b> / <b>Admin@123</b></div>
+      <div class="form-row">
+        <div><label>Email</label><input id="login-email" value="admin@education.com"></div>
+        <div><label>Password</label><input id="login-password" type="password" value="Admin@123"></div>
+      </div>
+      <button class="btn btn-primary" onclick="doLogin()">Login →</button>
+      <div id="login-response" class="response"></div>
+      <div id="token-display" class="token-box"></div>
+    </div>
+
+    <div class="card">
+      <h3>Register New Student</h3>
+      <div class="form-row">
+        <div><label>Full Name</label><input id="reg-name" placeholder="e.g. John Smith"></div>
+        <div><label>Email</label><input id="reg-email" placeholder="student@test.com"></div>
+        <div><label>Password (min 6)</label><input id="reg-password" type="password" placeholder="Pass@123"></div>
+      </div>
+      <button class="btn btn-success" onclick="doRegister()">Register →</button>
+      <div id="register-response" class="response"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== ADMIN ==================== -->
+<div id="tab-admin" class="section">
+  <h2>⚙️ Admin Setup — Build the Course Structure</h2>
+  <div class="info-box">Login as <b>admin@education.com</b> first. Build top-down: Category → Class → Topic → Content → Questions.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+    <div class="card">
+      <h3>1 — Categories</h3>
+      <button class="btn btn-outline" style="margin-bottom:12px" onclick="loadCategories()">Load All Categories</button>
+      <div id="categories-list" class="response show" style="color:#e2e8f0"></div>
+      <hr style="border-color:#334155;margin:14px 0">
+      <label>Name</label><input id="cat-name" placeholder="e.g. A-Level" style="margin-bottom:8px">
+      <label>Description</label><input id="cat-desc" placeholder="optional">
+      <button class="btn btn-primary" style="margin-top:10px" onclick="createCategory()">Create Category</button>
+      <div id="cat-response" class="response"></div>
+    </div>
+
+    <div class="card">
+      <h3>2 — Classes</h3>
+      <div class="form-row">
+        <div><label>Category ID</label><input id="class-catid" placeholder="e.g. 1"></div>
+        <div><label>Class Name</label><input id="class-name" placeholder="e.g. Year 11"></div>
+      </div>
+      <label>Description</label><input id="class-desc" placeholder="optional" style="margin-bottom:10px">
+      <button class="btn btn-primary" onclick="createClass()">Create Class</button>
+      <div id="class-response" class="response"></div>
+    </div>
+
+    <div class="card">
+      <h3>3 — Topics</h3>
+      <div class="form-row">
+        <div><label>Class ID</label><input id="topic-classid" placeholder="e.g. 1"></div>
+        <div><label>Topic Name</label><input id="topic-name" placeholder="e.g. Algebra"></div>
+      </div>
+      <label>Description</label><input id="topic-desc" placeholder="optional" style="margin-bottom:10px">
+      <button class="btn btn-primary" onclick="createTopic()">Create Topic</button>
+      <div id="topic-response" class="response"></div>
+    </div>
+
+    <div class="card">
+      <h3>4 — Content (attach to Topic)</h3>
+      <div class="form-row">
+        <div><label>Topic ID</label><input id="content-topicid" placeholder="e.g. 1"></div>
+        <div><label>Title</label><input id="content-title" placeholder="e.g. Algebra Unit Test"></div>
+        <div>
+          <label>Type</label>
+          <select id="content-type">
+            <option value="THEORY">Theory</option>
+            <option value="PRACTICE_TEST">Practice Test</option>
+            <option value="UNIT_TEST" selected>Unit Test (25 q)</option>
+            <option value="MOCK_EXAM">Mock Exam (100 q)</option>
+          </select>
+        </div>
+      </div>
+      <label>Body (for Theory)</label>
+      <textarea id="content-body" placeholder="Theory text (optional)"></textarea>
+      <button class="btn btn-primary" style="margin-top:10px" onclick="createContent()">Create Content</button>
+      <div id="content-response" class="response"></div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h3>5 — Add Question to Topic</h3>
+    <div class="form-row">
+      <div style="grid-column:1/-1"><label>Topic ID</label><input id="q-topicid" placeholder="e.g. 1"></div>
+      <div style="grid-column:1/-1"><label>Question Text</label><textarea id="q-text" placeholder="e.g. What is 5 × 6?"></textarea></div>
+      <div><label>Option A</label><input id="q-a" placeholder="e.g. 25"></div>
+      <div><label>Option B</label><input id="q-b" placeholder="e.g. 30"></div>
+      <div><label>Option C</label><input id="q-c" placeholder="e.g. 35"></div>
+      <div><label>Option D</label><input id="q-d" placeholder="e.g. 40"></div>
+      <div>
+        <label>Correct Answer</label>
+        <select id="q-correct"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+      </div>
+      <div><label>Explanation (optional)</label><input id="q-explanation" placeholder="e.g. 5 × 6 = 30"></div>
+    </div>
+    <button class="btn btn-primary" onclick="createQuestion()">Add Question</button>
+    <div id="question-response" class="response"></div>
+  </div>
+</div>
+
+<!-- ==================== EXAM ==================== -->
+<div id="tab-exam" class="section">
+  <h2>📝 Take an Exam</h2>
+  <div class="info-box">Login as a <b>Student</b> first. Enter a Content ID to start the exam.</div>
+
+  <div class="card" id="exam-start-card">
+    <h3>Start Exam</h3>
+    <div style="display:flex;gap:12px;align-items:flex-end">
+      <div style="flex:1"><label>Content ID</label><input id="exam-content-id" placeholder="e.g. 1" type="number"></div>
+      <button class="btn btn-primary" onclick="startExam()">Start Exam →</button>
+    </div>
+    <div id="exam-start-response" class="response"></div>
+  </div>
+
+  <div id="exam-questions">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 id="exam-title">Exam</h3>
+        <span id="exam-counter" class="badge badge-blue"></span>
+      </div>
+      <div id="questions-container"></div>
+      <button class="btn btn-success" style="margin-top:16px" onclick="submitExam()">Submit Exam ✓</button>
+    </div>
+  </div>
+
+  <div id="exam-result">
+    <div class="card">
+      <h3>Result</h3>
+      <div class="stat-grid" id="result-stats"></div>
+      <div id="result-answers"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PROGRESS ==================== -->
+<div id="tab-progress" class="section">
+  <h2>📊 My Progress</h2>
+  <div class="info-box">Login as a <b>Student</b> to see topic-wise scores, weak areas, and recommendations.</div>
+  <button class="btn btn-primary" onclick="loadProgress()">Load My Progress</button>
+  <div id="progress-data"></div>
+</div>
+
+<!-- ==================== ANALYTICS ==================== -->
+<div id="tab-analytics" class="section">
+  <h2>🔬 Analytics Service</h2>
+  <div class="info-box">Enter a Student ID (visible after login) to run analytics. Analytics runs on port 8081.</div>
+  <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:20px">
+    <div style="flex:1;max-width:200px"><label>Student ID</label><input id="analytics-student-id" placeholder="e.g. 2" type="number"></div>
+    <button class="btn btn-primary" onclick="loadAnalytics()">Run Analytics</button>
+  </div>
+  <div id="analytics-data"></div>
+</div>
+
+</main>
+
+<script>
+const API = 'http://localhost:8080/api';
+const ANA = 'http://localhost:8081';
+let token = localStorage.getItem('edu_token') || '';
+let currentRole = localStorage.getItem('edu_role') || '';
+let currentUser = localStorage.getItem('edu_user') || '';
+let currentExamId = null;
+let currentQuestions = [];
+
+// ─── restore session ───────────────────────────────────────────────────────
+if (token) updateUserLabel(currentUser, currentRole);
+
+function updateUserLabel(name, role) {
+  const el = document.getElementById('user-label');
+  el.textContent = name ? `${name} (${role})` : 'Not logged in';
+  el.className = role === 'ADMIN' ? 'role-admin' : role === 'STUDENT' ? 'role-student' : 'role-none';
+}
+
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showResponse(id, data, isError) {
+  const el = document.getElementById(id);
+  el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  el.className = 'response show ' + (isError ? 'error' : 'success');
+}
+
+async function apiFetch(url, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+  const r = await fetch(url, { headers, ...opts });
+  const json = await r.json().catch(() => ({ raw: await r.text() }));
+  return { ok: r.ok, status: r.status, data: json };
+}
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pw    = document.getElementById('login-password').value;
+  const res   = await apiFetch(`${API}/auth/login`, { method:'POST', body: JSON.stringify({email, password: pw}) });
+  if (res.ok) {
+    token = res.data.token;
+    currentRole = res.data.role;
+    currentUser = res.data.name;
+    localStorage.setItem('edu_token', token);
+    localStorage.setItem('edu_role', currentRole);
+    localStorage.setItem('edu_user', currentUser);
+    updateUserLabel(currentUser, currentRole);
+    document.getElementById('token-display').textContent = '🔑 Token stored: ' + token.substring(0,40) + '...';
+    document.getElementById('token-display').classList.add('show');
+    document.getElementById('step-login').className = 'step done';
+    document.getElementById('step-token').className = 'step done';
+    document.getElementById('step-ready').className = 'step done';
+    showResponse('login-response', { message: `Welcome ${res.data.name}!`, role: res.data.role, email: res.data.email }, false);
+    // pre-fill analytics student ID
+    if (res.data.id) document.getElementById('analytics-student-id').value = res.data.id;
+  } else {
+    showResponse('login-response', res.data, true);
+  }
+}
+
+async function doRegister() {
+  const body = { name: document.getElementById('reg-name').value, email: document.getElementById('reg-email').value, password: document.getElementById('reg-password').value };
+  const res = await apiFetch(`${API}/auth/register`, { method:'POST', body: JSON.stringify(body) });
+  if (res.ok) {
+    showResponse('register-response', { message: `Student registered! ID info in token.`, email: res.data.email }, false);
+  } else {
+    showResponse('register-response', res.data, true);
+  }
+}
+
+// ─── ADMIN ─────────────────────────────────────────────────────────────────
+async function loadCategories() {
+  const res = await apiFetch(`${API}/admin/category`);
+  const el = document.getElementById('categories-list');
+  if (res.ok) {
+    el.textContent = res.data.map(c => `ID:${c.id}  ${c.name}  — ${c.description||''}`).join('\n');
+  } else {
+    el.textContent = JSON.stringify(res.data, null, 2);
+    el.classList.add('error');
+  }
+}
+
+async function createCategory() {
+  const body = { name: document.getElementById('cat-name').value, description: document.getElementById('cat-desc').value };
+  const res = await apiFetch(`${API}/admin/category`, { method:'POST', body: JSON.stringify(body) });
+  showResponse('cat-response', res.data, !res.ok);
+  if (res.ok) loadCategories();
+}
+
+async function createClass() {
+  const body = { name: document.getElementById('class-name').value, description: document.getElementById('class-desc').value, categoryId: +document.getElementById('class-catid').value };
+  const res = await apiFetch(`${API}/admin/class`, { method:'POST', body: JSON.stringify(body) });
+  showResponse('class-response', res.data, !res.ok);
+}
+
+async function createTopic() {
+  const body = { name: document.getElementById('topic-name').value, description: document.getElementById('topic-desc').value, classId: +document.getElementById('topic-classid').value };
+  const res = await apiFetch(`${API}/admin/topic`, { method:'POST', body: JSON.stringify(body) });
+  showResponse('topic-response', res.data, !res.ok);
+}
+
+async function createContent() {
+  const body = { title: document.getElementById('content-title').value, contentType: document.getElementById('content-type').value, body: document.getElementById('content-body').value, topicId: +document.getElementById('content-topicid').value };
+  const res = await apiFetch(`${API}/admin/content`, { method:'POST', body: JSON.stringify(body) });
+  showResponse('content-response', res.data, !res.ok);
+}
+
+async function createQuestion() {
+  const body = { questionText: document.getElementById('q-text').value, optionA: document.getElementById('q-a').value, optionB: document.getElementById('q-b').value, optionC: document.getElementById('q-c').value, optionD: document.getElementById('q-d').value, correctAnswer: document.getElementById('q-correct').value, explanation: document.getElementById('q-explanation').value, topicId: +document.getElementById('q-topicid').value };
+  const res = await apiFetch(`${API}/admin/question`, { method:'POST', body: JSON.stringify(body) });
+  showResponse('question-response', res.data, !res.ok);
+}
+
+// ─── EXAM ──────────────────────────────────────────────────────────────────
+async function startExam() {
+  const contentId = +document.getElementById('exam-content-id').value;
+  const res = await apiFetch(`${API}/exam/start`, { method:'POST', body: JSON.stringify({ contentId }) });
+  if (!res.ok) { showResponse('exam-start-response', res.data, true); return; }
+
+  currentExamId = res.data.examId;
+  currentQuestions = res.data.questions;
+  document.getElementById('exam-start-response').className = 'response';
+  document.getElementById('exam-questions').style.display = 'block';
+  document.getElementById('exam-result').style.display = 'none';
+  document.getElementById('exam-title').textContent = res.data.contentTitle + ' — ' + res.data.contentType.replace('_', ' ');
+  document.getElementById('exam-counter').textContent = `${res.data.totalQuestions} questions`;
+
+  const container = document.getElementById('questions-container');
+  container.innerHTML = currentQuestions.map((q, i) => `
+    <div class="q-card">
+      <p><b>Q${i+1}.</b> ${q.questionText}</p>
+      <div class="q-options">
+        ${['A','B','C','D'].filter(l => q['option'+l]).map(l => `
+          <label class="q-option">
+            <input type="radio" name="q_${q.id}" value="${l}">
+            <label>${l}. ${q['option'+l]}</label>
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+async function submitExam() {
+  const answers = currentQuestions.map(q => {
+    const sel = document.querySelector(`input[name="q_${q.id}"]:checked`);
+    return { questionId: q.id, answer: sel ? sel.value : 'A' };
+  });
+  const res = await apiFetch(`${API}/exam/submit`, { method:'POST', body: JSON.stringify({ examId: currentExamId, answers }) });
+  if (!res.ok) { alert('Submit failed: ' + JSON.stringify(res.data)); return; }
+
+  document.getElementById('exam-questions').style.display = 'none';
+  document.getElementById('exam-result').style.display = 'block';
+
+  const d = res.data;
+  const gradeColor = d.percentage >= 70 ? '#6ee7b7' : d.percentage >= 50 ? '#fbbf24' : '#fca5a5';
+  document.getElementById('result-stats').innerHTML = `
+    <div class="stat"><div class="val" style="color:${gradeColor}">${d.grade}</div><div class="lbl">Grade</div></div>
+    <div class="stat"><div class="val">${d.score}/${d.total}</div><div class="lbl">Score</div></div>
+    <div class="stat"><div class="val">${d.percentage.toFixed(1)}%</div><div class="lbl">Percentage</div></div>`;
+
+  document.getElementById('result-answers').innerHTML = d.answers.map(a => `
+    <div style="padding:10px;margin-bottom:8px;background:#0f172a;border-radius:8px;border:1px solid ${a.correct?'#064e3b':'#7f1d1d'}">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:0.85rem">${a.questionText}</span>
+        <span class="${a.correct?'badge-green':'badge-red'} badge">${a.correct?'✓ Correct':'✗ Wrong'}</span>
+      </div>
+      <div style="font-size:0.78rem;color:#94a3b8">
+        Your answer: <b style="color:${a.correct?'#6ee7b7':'#fca5a5'}">${a.studentAnswer||'—'}</b>
+        &nbsp;|&nbsp; Correct: <b style="color:#6ee7b7">${a.correctAnswer}</b>
+        ${a.explanation ? `&nbsp;|&nbsp; ${a.explanation}` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ─── PROGRESS ──────────────────────────────────────────────────────────────
+async function loadProgress() {
+  const res = await apiFetch(`${API}/student/progress`);
+  const container = document.getElementById('progress-data');
+  container.style.display = 'block';
+  if (!res.ok) { container.innerHTML = `<div class="response error show">${JSON.stringify(res.data,null,2)}</div>`; return; }
+  const d = res.data;
+  container.innerHTML = `
+    <div class="stat-grid" style="margin-top:20px">
+      <div class="stat"><div class="val">${d.totalExams}</div><div class="lbl">Total Exams</div></div>
+      <div class="stat"><div class="val">${d.overallAverage}%</div><div class="lbl">Overall Average</div></div>
+      <div class="stat"><div class="val" style="color:#fca5a5">${d.weakTopics.length}</div><div class="lbl">Weak Topics</div></div>
+    </div>
+    ${d.topics.map(t => `
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div><b>${t.topicName}</b> <span style="color:#64748b;font-size:0.8rem">${t.categoryName} › ${t.className}</span></div>
+          <span class="${t.weak?'tag-weak':'tag-strong'}">${t.weak?'⚠ Needs Work':'✓ Passing'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:#94a3b8;margin-bottom:6px">
+          <span>Average: <b style="color:#e2e8f0">${t.averagePercentage}%</b></span>
+          <span>Attempts: <b style="color:#e2e8f0">${t.totalAttempts}</b></span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${t.averagePercentage}%;background:${t.weak?'#dc2626':'#059669'}"></div></div>
+      </div>`).join('')}
+    <div class="card">
+      <h3>Recommendations</h3>
+      ${d.recommendations.map(r => `<div style="padding:8px 0;border-bottom:1px solid #334155;font-size:0.875rem;color:#cbd5e1">💡 ${r}</div>`).join('')}
+    </div>`;
+}
+
+// ─── ANALYTICS ─────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const sid = document.getElementById('analytics-student-id').value;
+  if (!sid) { alert('Enter a Student ID'); return; }
+  const container = document.getElementById('analytics-data');
+  container.style.display = 'block';
+  container.innerHTML = '<div style="color:#94a3b8;padding:20px">Loading analytics...</div>';
+
+  const [weakRes, trendRes, reportRes, chartRes] = await Promise.all([
+    fetch(`${ANA}/analytics/student/${sid}/weak-areas`).then(r=>r.json()),
+    fetch(`${ANA}/analytics/student/${sid}/trends`).then(r=>r.json()),
+    fetch(`${ANA}/analytics/student/${sid}/report`).then(r=>r.json()),
+    fetch(`${ANA}/analytics/student/${sid}/charts/topics`).then(r=>r.json()).catch(()=>null),
+  ]);
+
+  const chart = chartRes && chartRes.chart
+    ? `<div class="card"><h3>Topic Performance Chart</h3><img src="data:image/png;base64,${chartRes.chart}" style="width:100%;border-radius:8px;margin-top:10px"></div>`
+    : '';
+
+  container.innerHTML = `
+    <div class="stat-grid" style="margin-top:20px">
+      <div class="stat"><div class="val">${reportRes.summary?.total_exams??'—'}</div><div class="lbl">Total Exams</div></div>
+      <div class="stat"><div class="val">${reportRes.summary?.overall_average??'—'}%</div><div class="lbl">Overall Average</div></div>
+      <div class="stat"><div class="val" style="color:#fca5a5">${weakRes.weak_areas?.length??0}</div><div class="lbl">Weak Topics</div></div>
+      <div class="stat"><div class="val" style="color:#6ee7b7">${weakRes.strong_areas?.length??0}</div><div class="lbl">Strong Topics</div></div>
+      <div class="stat"><div class="val">${reportRes.summary?.overall_trend??'—'}</div><div class="lbl">Trend</div></div>
+    </div>
+
+    ${chart}
+
+    <div class="card">
+      <h3>Weak Areas (below 60%)</h3>
+      ${weakRes.weak_areas?.length
+        ? weakRes.weak_areas.map(w=>`<div style="padding:8px 0;border-bottom:1px solid #334155;font-size:0.875rem"><span class="tag-weak">⚠ Weak</span> <b style="margin-left:8px">${w.topic_name}</b> <span style="color:#64748b">${w.category_name} › ${w.class_name}</span> — avg <b style="color:#fca5a5">${w.average_percentage}%</b> (${w.attempts} attempt${w.attempts>1?'s':''})</div>`).join('')
+        : '<div style="color:#6ee7b7;padding:8px 0">✓ No weak areas!</div>'}
+    </div>
+
+    <div class="card">
+      <h3>Recommendations</h3>
+      ${reportRes.recommendations?.map(r=>`<div style="padding:8px 0;border-bottom:1px solid #334155;font-size:0.875rem">
+        <span class="badge badge-${r.priority==='HIGH'?'red':r.priority==='MEDIUM'?'blue':'green'}">${r.priority}</span>
+        <span style="margin-left:10px;color:#cbd5e1">${r.message}</span>
+      </div>`).join('') || '<div style="color:#64748b">No recommendations yet.</div>'}
+    </div>
+
+    <div class="card">
+      <h3>Raw Trend Data</h3>
+      <pre style="font-size:0.75rem;color:#a5f3fc;overflow-x:auto">${JSON.stringify(trendRes, null, 2)}</pre>
+    </div>`;
+}
+</script>
+</body>
+</html>
