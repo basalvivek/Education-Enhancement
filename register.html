@@ -404,12 +404,17 @@
       localStorage.setItem('userRole',  data.role);
 
       // Show success
+      // Redirect admin straight to dashboard
+      if (returnedRole === 'ADMIN') {
+        location.href = 'admin.html';
+        return;
+      }
+
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('loginSuccess').style.display = 'block';
 
-      const isAdmin = returnedRole === 'ADMIN';
-      document.getElementById('loginBadge').className  = `badge ${isAdmin ? 'admin' : 'student'}`;
-      document.getElementById('loginBadge').textContent = isAdmin ? '👑 Super User' : '🎓 Student';
+      document.getElementById('loginBadge').className  = 'badge student';
+      document.getElementById('loginBadge').textContent = '🎓 Student';
       document.getElementById('loginWelcome').textContent = `Welcome back, ${data.name}!`;
       document.getElementById('loginSub').textContent = `Logged in as ${data.email}`;
       document.getElementById('loginToken').textContent = data.token;

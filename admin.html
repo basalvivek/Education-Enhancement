@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Education Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --nav-h: 56px;
+      --side-w: 220px;
+      --purple: #5a67d8;
+      --purple-d: #4c51bf;
+      --green: #38a169;
+      --red: #e53e3e;
+      --bg: #f7fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1a202c;
+      --muted: #718096;
+    }
+
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── Top nav ── */
+    .topnav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+      background: var(--purple); color: #fff;
+      display: flex; align-items: center; padding: 0 20px;
+      z-index: 100; gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .topnav .brand { font-size: 17px; font-weight: 700; flex: 1; }
+    .topnav .user-pill {
+      background: rgba(255,255,255,0.15); border-radius: 20px;
+      padding: 4px 14px; font-size: 13px; font-weight: 500;
+    }
+    .topnav .logout-btn {
+      background: rgba(255,255,255,0.2); border: none; color: #fff;
+      padding: 6px 14px; border-radius: 8px; font-size: 13px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .topnav .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed; top: var(--nav-h); left: 0; bottom: 0;
+      width: var(--side-w); background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 20px 0; overflow-y: auto;
+    }
+    .sidebar-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      padding: 0 20px; margin-bottom: 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px; cursor: pointer; font-size: 14px;
+      font-weight: 500; color: var(--muted);
+      transition: all 0.15s; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: #f7fafc; color: var(--text); }
+    .nav-item.active {
+      background: #ebf4ff; color: var(--purple);
+      border-left-color: var(--purple); font-weight: 600;
+    }
+    .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--side-w);
+      margin-top: var(--nav-h);
+      padding: 28px 32px;
+      min-height: calc(100vh - var(--nav-h));
+    }
+
+    /* ── Page title ── */
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 22px; font-weight: 700; }
+    .page-header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card); border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 24px; margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 15px; font-weight: 700; margin-bottom: 18px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Form ── */
+    .form-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+    .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .field input, .field select, .field textarea {
+      padding: 9px 12px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 14px; color: var(--text);
+      outline: none; transition: border-color 0.2s;
+      background: #fff; font-family: inherit;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--purple); }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .field.wide { flex: 2; min-width: 220px; }
+
+    .btn {
+      padding: 9px 20px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s; white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--purple); color: #fff; }
+    .btn-danger  { background: var(--red);    color: #fff; padding: 5px 12px; font-size: 12px; }
+
+    /* ── Alert ── */
+    .alert {
+      display: none; padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; margin-bottom: 14px;
+    }
+    .alert.ok  { background: #f0fff4; border: 1px solid #68d391; color: #276749; }
+    .alert.err { background: #fff5f5; border: 1px solid #fc8181; color: #c53030; }
+
+    /* ── Table ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--muted); padding: 8px 12px;
+      border-bottom: 2px solid var(--border); white-space: nowrap;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f7fafc; }
+    .badge-type {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+      background: #ebf8ff; color: #2b6cb0;
+    }
+    .empty-row td { text-align: center; color: var(--muted); padding: 24px; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle; margin-right: 5px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Section visibility ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Breadcrumb selectors ── */
+    .filter-row {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 20px; align-items: flex-end;
+    }
+    .filter-row .field { flex: 1; min-width: 150px; max-width: 260px; }
+  </style>
+</head>
+<body>
+
+<!-- Top Nav -->
+<nav class="topnav">
+  <div class="brand">📚 Education Portal</div>
+  <span class="user-pill" id="userPill">Loading…</span>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</nav>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-label">Management</div>
+  <div class="nav-item active" id="nav-categories" onclick="show('categories')">
+    <span class="icon">🗂</span> Categories
+  </div>
+  <div class="nav-item" id="nav-classes" onclick="show('classes')">
+    <span class="icon">📖</span> Classes
+  </div>
+  <div class="nav-item" id="nav-topics" onclick="show('topics')">
+    <span class="icon">📝</span> Topics
+  </div>
+  <div class="nav-item" id="nav-content" onclick="show('content')">
+    <span class="icon">🎯</span> Content
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- ════════ CATEGORIES ════════ -->
+  <div id="sec-categories" class="section active">
+    <div class="page-header">
+      <h1>Categories</h1>
+      <p>Top-level subjects (e.g. GCSE, University, Medical)</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add New Category</div>
+      <div id="cat-alert" class="alert"></div>
+      <div class="form-row">
+        <div class="field wide"><label>Name *</label>
+          <input id="cat-name" placeholder="e.g. GCSE">
+        </div>
+        <div class="field wide"><label>Description</label>
+          <input id="cat-desc" placeholder="Optional description">
+        </div>
+        <button class="btn btn-primary" id="cat-btn" onclick="createCategory()">Add Category</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">All Categories</div>
+      <div class="tbl-wrap">
+        <table id="cat-table">
+          <thead><tr><th>#</th><th>Name</th><th>Description</th><th>Action</th></tr></thead>
+          <tbody id="cat-tbody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ CLASSES ════════ -->
+  <div id="sec-classes" class="section">
+    <div class="page-header">
+      <h1>Classes</h1>
+      <p>Classes belong to a Category</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add New Class</div>
+      <div id="cls-alert" class="alert"></div>
+      <div class="form-row">
+        <div class="field"><label>Category *</label>
+          <select id="cls-cat-sel" onchange="createClassCatChanged()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+        <div class="field wide"><label>Class Name *</label>
+          <input id="cls-name" placeholder="e.g. Year 10">
+        </div>
+        <div class="field wide"><label>Description</label>
+          <input id="cls-desc" placeholder="Optional">
+        </div>
+        <button class="btn btn-primary" id="cls-btn" onclick="createClass()">Add Class</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Browse Classes</div>
+      <div class="filter-row">
+        <div class="field"><label>Filter by Category</label>
+          <select id="cls-filter-cat" onchange="loadClasses()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Description</th><th>Category</th><th>Action</th></tr></thead>
+          <tbody id="cls-tbody"><tr class="empty-row"><td colspan="5">Select a category to view classes</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ TOPICS ════════ -->
+  <div id="sec-topics" class="section">
+    <div class="page-header">
+      <h1>Topics</h1>
+      <p>Topics belong to a Class</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add New Topic</div>
+      <div id="top-alert" class="alert"></div>
+      <div class="form-row">
+        <div class="field"><label>Category *</label>
+          <select id="top-cat-sel" onchange="topicCatChanged()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+        <div class="field"><label>Class *</label>
+          <select id="top-cls-sel" onchange="topicClsChanged('add')">
+            <option value="">— select class —</option>
+          </select>
+        </div>
+        <div class="field wide"><label>Topic Name *</label>
+          <input id="top-name" placeholder="e.g. Algebra Basics">
+        </div>
+        <div class="field wide"><label>Description</label>
+          <input id="top-desc" placeholder="Optional">
+        </div>
+        <button class="btn btn-primary" id="top-btn" onclick="createTopic()">Add Topic</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Browse Topics</div>
+      <div class="filter-row">
+        <div class="field"><label>Category</label>
+          <select id="top-filter-cat" onchange="topicFilterCatChanged()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+        <div class="field"><label>Class</label>
+          <select id="top-filter-cls" onchange="loadTopics()">
+            <option value="">— select class —</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Name</th><th>Description</th><th>Class</th><th>Action</th></tr></thead>
+          <tbody id="top-tbody"><tr class="empty-row"><td colspan="5">Select a class to view topics</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ CONTENT ════════ -->
+  <div id="sec-content" class="section">
+    <div class="page-header">
+      <h1>Content</h1>
+      <p>Content belongs to a Topic — set type: Theory, Practice Test, Unit Test (25q) or Mock Exam (100q)</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add New Content</div>
+      <div id="con-alert" class="alert"></div>
+      <div class="form-row">
+        <div class="field"><label>Category *</label>
+          <select id="con-cat-sel" onchange="contentCatChanged()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+        <div class="field"><label>Class *</label>
+          <select id="con-cls-sel" onchange="contentClsChanged()">
+            <option value="">— select class —</option>
+          </select>
+        </div>
+        <div class="field"><label>Topic *</label>
+          <select id="con-top-sel">
+            <option value="">— select topic —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field wide"><label>Title *</label>
+          <input id="con-title" placeholder="e.g. Introduction to Algebra">
+        </div>
+        <div class="field"><label>Content Type *</label>
+          <select id="con-type">
+            <option value="">— select type —</option>
+            <option value="THEORY">Theory</option>
+            <option value="PRACTICE_TEST">Practice Test</option>
+            <option value="UNIT_TEST">Unit Test (25 questions)</option>
+            <option value="MOCK_EXAM">Mock Exam (100 questions)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field" style="flex:1">
+          <label>Body / Description (optional)</label>
+          <textarea id="con-body" placeholder="Notes or description for this content…"></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="con-btn" onclick="createContent()">Add Content</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Browse Content</div>
+      <div class="filter-row">
+        <div class="field"><label>Category</label>
+          <select id="con-filter-cat" onchange="contentFilterCatChanged()">
+            <option value="">— select category —</option>
+          </select>
+        </div>
+        <div class="field"><label>Class</label>
+          <select id="con-filter-cls" onchange="contentFilterClsChanged()">
+            <option value="">— select class —</option>
+          </select>
+        </div>
+        <div class="field"><label>Topic</label>
+          <select id="con-filter-top" onchange="loadContent()">
+            <option value="">— select topic —</option>
+          </select>
+        </div>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Title</th><th>Type</th><th>Topic</th><th>Action</th></tr></thead>
+          <tbody id="con-tbody"><tr class="empty-row"><td colspan="5">Select a topic to view content</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const API = 'http://localhost:8080';
+
+/* ── Auth guard ── */
+const token = localStorage.getItem('token');
+const role  = localStorage.getItem('userRole');
+const name  = localStorage.getItem('userName');
+if (!token || role !== 'ADMIN') {
+  alert('Access denied. Please login as Super User.');
+  location.href = 'register.html';
+}
+document.getElementById('userPill').textContent = '👑 ' + (name || 'Admin');
+
+function logout() {
+  localStorage.clear();
+  location.href = 'register.html';
+}
+
+/* ── API helpers ── */
+async function api(method, path, body) {
+  const res = await fetch(API + path, {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || `Error ${res.status}`);
+  return data;
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert ' + (type === 'ok' ? 'ok' : 'err');
+  el.style.display = 'block';
+  if (type === 'ok') setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function setBusy(id, text) {
+  const b = document.getElementById(id);
+  b.disabled = true;
+  b.innerHTML = `<span class="spinner"></span>${text}`;
+  return b;
+}
+function setReady(b, text) { b.disabled = false; b.textContent = text; }
+
+function populateSelect(selId, items, valKey, labelKey, placeholder) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = `<option value="">${placeholder}</option>` +
+    items.map(i => `<option value="${i[valKey]}">${i[labelKey]}</option>`).join('');
+}
+
+/* ══════════════════════════════
+   NAVIGATION
+══════════════════════════════ */
+function show(sec) {
+  ['categories','classes','topics','content'].forEach(s => {
+    document.getElementById('sec-' + s).classList.toggle('active', s === sec);
+    document.getElementById('nav-' + s).classList.toggle('active', s === sec);
+  });
+  if (sec === 'categories') loadCategories();
+  if (sec === 'classes')    { loadCatSelects(['cls-cat-sel','cls-filter-cat']); }
+  if (sec === 'topics')     { loadCatSelects(['top-cat-sel','top-filter-cat']); }
+  if (sec === 'content')    { loadCatSelects(['con-cat-sel','con-filter-cat']); }
+}
+
+/* ══════════════════════════════
+   CATEGORIES
+══════════════════════════════ */
+async function loadCategories() {
+  const rows = document.getElementById('cat-tbody');
+  rows.innerHTML = '<tr class="empty-row"><td colspan="4">Loading…</td></tr>';
+  try {
+    const data = await api('GET', '/api/admin/category');
+    if (!data.length) {
+      rows.innerHTML = '<tr class="empty-row"><td colspan="4">No categories yet — add one above.</td></tr>';
+      return;
+    }
+    rows.innerHTML = data.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td><strong>${c.name}</strong></td>
+        <td>${c.description || '<span style="color:#a0aec0">—</span>'}</td>
+        <td><button class="btn btn-danger" onclick="deleteCategory(${c.id})">Delete</button></td>
+      </tr>`).join('');
+    // refresh category selects across all sections
+    ['cls-cat-sel','cls-filter-cat','top-cat-sel','top-filter-cat','con-cat-sel','con-filter-cat']
+      .forEach(id => populateSelect(id, data, 'id', 'name', '— select category —'));
+  } catch(e) {
+    rows.innerHTML = `<tr class="empty-row"><td colspan="4">${e.message}</td></tr>`;
+  }
+}
+
+async function createCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  const desc = document.getElementById('cat-desc').value.trim();
+  if (!name) { showAlert('cat-alert', 'Name is required.', 'err'); return; }
+  const btn = setBusy('cat-btn', 'Adding…');
+  try {
+    await api('POST', '/api/admin/category', { name, description: desc || null });
+    document.getElementById('cat-name').value = '';
+    document.getElementById('cat-desc').value = '';
+    showAlert('cat-alert', `Category "${name}" added successfully.`, 'ok');
+    loadCategories();
+  } catch(e) { showAlert('cat-alert', e.message, 'err'); }
+  finally    { setReady(btn, 'Add Category'); }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Delete this category? This will also remove all classes, topics and content under it.')) return;
+  try {
+    await api('DELETE', '/api/admin/category/' + id);
+    loadCategories();
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   SHARED: load categories into selects
+══════════════════════════════ */
+async function loadCatSelects(ids) {
+  try {
+    const data = await api('GET', '/api/admin/category');
+    ids.forEach(id => populateSelect(id, data, 'id', 'name', '— select category —'));
+  } catch(e) {}
+}
+
+/* ══════════════════════════════
+   CLASSES
+══════════════════════════════ */
+function createClassCatChanged() {} // nothing special needed
+
+async function loadClasses() {
+  const catId = document.getElementById('cls-filter-cat').value;
+  const rows  = document.getElementById('cls-tbody');
+  if (!catId) { rows.innerHTML = '<tr class="empty-row"><td colspan="5">Select a category to view classes</td></tr>'; return; }
+  rows.innerHTML = '<tr class="empty-row"><td colspan="5">Loading…</td></tr>';
+  try {
+    const [classes, cats] = await Promise.all([
+      api('GET', '/api/admin/class?categoryId=' + catId),
+      api('GET', '/api/admin/category')
+    ]);
+    if (!classes.length) {
+      rows.innerHTML = '<tr class="empty-row"><td colspan="5">No classes in this category yet.</td></tr>'; return;
+    }
+    const catMap = Object.fromEntries(cats.map(c => [c.id, c.name]));
+    rows.innerHTML = classes.map(c => `
+      <tr>
+        <td>${c.id}</td><td><strong>${c.name}</strong></td>
+        <td>${c.description || '<span style="color:#a0aec0">—</span>'}</td>
+        <td>${catMap[c.categoryId] || c.categoryId}</td>
+        <td><button class="btn btn-danger" onclick="deleteClass(${c.id})">Delete</button></td>
+      </tr>`).join('');
+  } catch(e) {
+    rows.innerHTML = `<tr class="empty-row"><td colspan="5">${e.message}</td></tr>`;
+  }
+}
+
+async function createClass() {
+  const catId = document.getElementById('cls-cat-sel').value;
+  const name  = document.getElementById('cls-name').value.trim();
+  const desc  = document.getElementById('cls-desc').value.trim();
+  if (!catId) { showAlert('cls-alert', 'Please select a category.', 'err'); return; }
+  if (!name)  { showAlert('cls-alert', 'Class name is required.', 'err'); return; }
+  const btn = setBusy('cls-btn', 'Adding…');
+  try {
+    await api('POST', '/api/admin/class', { name, description: desc || null, categoryId: Number(catId) });
+    document.getElementById('cls-name').value = '';
+    document.getElementById('cls-desc').value = '';
+    showAlert('cls-alert', `Class "${name}" added.`, 'ok');
+    loadClasses();
+  } catch(e) { showAlert('cls-alert', e.message, 'err'); }
+  finally    { setReady(btn, 'Add Class'); }
+}
+
+async function deleteClass(id) {
+  if (!confirm('Delete this class? Topics and content under it will also be removed.')) return;
+  try { await api('DELETE', '/api/admin/class/' + id); loadClasses(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   TOPICS
+══════════════════════════════ */
+async function topicCatChanged() {
+  const catId = document.getElementById('top-cat-sel').value;
+  const sel   = document.getElementById('top-cls-sel');
+  sel.innerHTML = '<option value="">— select class —</option>';
+  if (!catId) return;
+  try {
+    const data = await api('GET', '/api/admin/class?categoryId=' + catId);
+    populateSelect('top-cls-sel', data, 'id', 'name', '— select class —');
+  } catch(e) {}
+}
+
+async function topicFilterCatChanged() {
+  const catId = document.getElementById('top-filter-cat').value;
+  document.getElementById('top-filter-cls').innerHTML = '<option value="">— select class —</option>';
+  document.getElementById('top-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">Select a class to view topics</td></tr>';
+  if (!catId) return;
+  try {
+    const data = await api('GET', '/api/admin/class?categoryId=' + catId);
+    populateSelect('top-filter-cls', data, 'id', 'name', '— select class —');
+  } catch(e) {}
+}
+
+async function loadTopics() {
+  const clsId = document.getElementById('top-filter-cls').value;
+  const rows  = document.getElementById('top-tbody');
+  if (!clsId) { rows.innerHTML = '<tr class="empty-row"><td colspan="5">Select a class to view topics</td></tr>'; return; }
+  rows.innerHTML = '<tr class="empty-row"><td colspan="5">Loading…</td></tr>';
+  try {
+    const [topics, classes] = await Promise.all([
+      api('GET', '/api/admin/topic?classId=' + clsId),
+      api('GET', '/api/admin/class/' + clsId)
+    ]);
+    if (!topics.length) {
+      rows.innerHTML = '<tr class="empty-row"><td colspan="5">No topics in this class yet.</td></tr>'; return;
+    }
+    rows.innerHTML = topics.map(t => `
+      <tr>
+        <td>${t.id}</td><td><strong>${t.name}</strong></td>
+        <td>${t.description || '<span style="color:#a0aec0">—</span>'}</td>
+        <td>${classes.name}</td>
+        <td><button class="btn btn-danger" onclick="deleteTopic(${t.id})">Delete</button></td>
+      </tr>`).join('');
+  } catch(e) {
+    rows.innerHTML = `<tr class="empty-row"><td colspan="5">${e.message}</td></tr>`;
+  }
+}
+
+async function topicClsChanged() {}
+
+async function createTopic() {
+  const clsId = document.getElementById('top-cls-sel').value;
+  const name  = document.getElementById('top-name').value.trim();
+  const desc  = document.getElementById('top-desc').value.trim();
+  if (!document.getElementById('top-cat-sel').value) { showAlert('top-alert', 'Please select a category.', 'err'); return; }
+  if (!clsId) { showAlert('top-alert', 'Please select a class.', 'err'); return; }
+  if (!name)  { showAlert('top-alert', 'Topic name is required.', 'err'); return; }
+  const btn = setBusy('top-btn', 'Adding…');
+  try {
+    await api('POST', '/api/admin/topic', { name, description: desc || null, classId: Number(clsId) });
+    document.getElementById('top-name').value = '';
+    document.getElementById('top-desc').value = '';
+    showAlert('top-alert', `Topic "${name}" added.`, 'ok');
+    loadTopics();
+  } catch(e) { showAlert('top-alert', e.message, 'err'); }
+  finally    { setReady(btn, 'Add Topic'); }
+}
+
+async function deleteTopic(id) {
+  if (!confirm('Delete this topic?')) return;
+  try { await api('DELETE', '/api/admin/topic/' + id); loadTopics(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   CONTENT
+══════════════════════════════ */
+async function contentCatChanged() {
+  const catId = document.getElementById('con-cat-sel').value;
+  document.getElementById('con-cls-sel').innerHTML = '<option value="">— select class —</option>';
+  document.getElementById('con-top-sel').innerHTML = '<option value="">— select topic —</option>';
+  if (!catId) return;
+  try {
+    const data = await api('GET', '/api/admin/class?categoryId=' + catId);
+    populateSelect('con-cls-sel', data, 'id', 'name', '— select class —');
+  } catch(e) {}
+}
+
+async function contentClsChanged() {
+  const clsId = document.getElementById('con-cls-sel').value;
+  document.getElementById('con-top-sel').innerHTML = '<option value="">— select topic —</option>';
+  if (!clsId) return;
+  try {
+    const data = await api('GET', '/api/admin/topic?classId=' + clsId);
+    populateSelect('con-top-sel', data, 'id', 'name', '— select topic —');
+  } catch(e) {}
+}
+
+async function contentFilterCatChanged() {
+  const catId = document.getElementById('con-filter-cat').value;
+  document.getElementById('con-filter-cls').innerHTML = '<option value="">— select class —</option>';
+  document.getElementById('con-filter-top').innerHTML = '<option value="">— select topic —</option>';
+  document.getElementById('con-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">Select a topic to view content</td></tr>';
+  if (!catId) return;
+  try {
+    const data = await api('GET', '/api/admin/class?categoryId=' + catId);
+    populateSelect('con-filter-cls', data, 'id', 'name', '— select class —');
+  } catch(e) {}
+}
+
+async function contentFilterClsChanged() {
+  const clsId = document.getElementById('con-filter-cls').value;
+  document.getElementById('con-filter-top').innerHTML = '<option value="">— select topic —</option>';
+  document.getElementById('con-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">Select a topic to view content</td></tr>';
+  if (!clsId) return;
+  try {
+    const data = await api('GET', '/api/admin/topic?classId=' + clsId);
+    populateSelect('con-filter-top', data, 'id', 'name', '— select topic —');
+  } catch(e) {}
+}
+
+async function loadContent() {
+  const topId = document.getElementById('con-filter-top').value;
+  const rows  = document.getElementById('con-tbody');
+  if (!topId) { rows.innerHTML = '<tr class="empty-row"><td colspan="5">Select a topic to view content</td></tr>'; return; }
+  rows.innerHTML = '<tr class="empty-row"><td colspan="5">Loading…</td></tr>';
+  try {
+    const [contents, topic] = await Promise.all([
+      api('GET', '/api/admin/content?topicId=' + topId),
+      api('GET', '/api/admin/topic/' + topId)
+    ]);
+    if (!contents.length) {
+      rows.innerHTML = '<tr class="empty-row"><td colspan="5">No content for this topic yet.</td></tr>'; return;
+    }
+    rows.innerHTML = contents.map(c => `
+      <tr>
+        <td>${c.id}</td><td><strong>${c.title}</strong></td>
+        <td><span class="badge-type">${c.contentType}</span></td>
+        <td>${topic.name}</td>
+        <td><button class="btn btn-danger" onclick="deleteContent(${c.id})">Delete</button></td>
+      </tr>`).join('');
+  } catch(e) {
+    rows.innerHTML = `<tr class="empty-row"><td colspan="5">${e.message}</td></tr>`;
+  }
+}
+
+async function createContent() {
+  const topId = document.getElementById('con-top-sel').value;
+  const title = document.getElementById('con-title').value.trim();
+  const type  = document.getElementById('con-type').value;
+  const body  = document.getElementById('con-body').value.trim();
+  if (!document.getElementById('con-cat-sel').value) { showAlert('con-alert', 'Please select a category.', 'err'); return; }
+  if (!document.getElementById('con-cls-sel').value) { showAlert('con-alert', 'Please select a class.', 'err'); return; }
+  if (!topId) { showAlert('con-alert', 'Please select a topic.', 'err'); return; }
+  if (!title) { showAlert('con-alert', 'Title is required.', 'err'); return; }
+  if (!type)  { showAlert('con-alert', 'Please select a content type.', 'err'); return; }
+  const btn = setBusy('con-btn', 'Adding…');
+  try {
+    await api('POST', '/api/admin/content', { title, contentType: type, body: body || null, topicId: Number(topId) });
+    document.getElementById('con-title').value = '';
+    document.getElementById('con-body').value  = '';
+    document.getElementById('con-type').value  = '';
+    showAlert('con-alert', `Content "${title}" added.`, 'ok');
+    loadContent();
+  } catch(e) { showAlert('con-alert', e.message, 'err'); }
+  finally    { setReady(btn, 'Add Content'); }
+}
+
+async function deleteContent(id) {
+  if (!confirm('Delete this content item?')) return;
+  try { await api('DELETE', '/api/admin/content/' + id); loadContent(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ── Boot ── */
+loadCategories();
+</script>
+</body>
+</html>
